@@ -1,0 +1,94 @@
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  display: flex;
+  justify-content: center; 
+  align-items: flex-start; 
+}
+
+.profile-panel {
+  width: 100%;
+  max-width: 600px; 
+  background: #fff;
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
+  animation: slideDown 0.35s ease forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.profile-avatar.initial-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c5ce7, #0984e3);
+  color: #fff;
+  font-size: 42px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+
+.profile-header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  /* margin-bottom: 20px; */
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* Info text styling */
+.profile-info-text {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 5px;
+}
+
+/* --------- Desktop layout (row) --------- */
+@media (min-width: 767px) {
+  .profile-panel {
+    flex-direction: row; /* Avatar + info side by side */
+    align-items: center;
+    justify-content: space-around;
+    padding: 30px;
+  }
+
+  .profile-avatar.initial-avatar {
+    margin: 0 30px 0 0; /* Right margin instead of bottom */
+  }
+
+  .profile-info-text {
+    text-align: left;
+    gap: 10px;
+  }
+
+  .profile-header {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+}
