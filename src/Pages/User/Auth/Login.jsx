@@ -51,7 +51,6 @@ export const Login = () => {
       const idToken = credentialResponse.credential;
 
       const res = await dispatch(googleLoginService(idToken)).unwrap();
-      console.log(res.role, "res.role");
 
       if (res.role === "user") {
         navigate("/dashboard");
@@ -92,7 +91,6 @@ export const Login = () => {
       ).unwrap();
 
       const { role, access_token } = res;
-      console.log(res, "res");
 
       sessionStorage.setItem("role", role);
       sessionStorage.setItem("access_token", access_token);

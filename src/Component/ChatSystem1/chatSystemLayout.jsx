@@ -3,7 +3,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { useWebSocket } from "../../Context/WebSocketContext";
-import { fetchMessages, uploadfileChatSystemAPi } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import {
+  fetchMessages,
+  uploadfileChatSystemAPi,
+} from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
 import ChatMessages from "./messageBubble";
 import { ChatInput } from "./messageInput";
 import { ChatHeader } from "./chatSystemHeader";
@@ -14,17 +17,19 @@ export const ChatLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const receiverId = location.state?.receiver_id;
-  
+
   const name = location.state?.name;
 
+  console.log(receiverId, name, "name and reciever id");
 
   const dispatch = useDispatch();
   const { messages, userStatus } = useSelector(
-    (state) => state.chatSystemSlice
+    (state) => state.chatSystemSlice,
   );
   console.log(userStatus, "userStatus");
 
-  const { sendMessage, myUserId, sendTypingIndicator, setCurrentConversation } = useWebSocket();
+  const { sendMessage, myUserId, sendTypingIndicator, setCurrentConversation } =
+    useWebSocket();
   const [showProfile, setShowProfile] = useState(false);
   const [text, setText] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -44,11 +49,9 @@ export const ChatLayout = () => {
     }
   }, [conversationId, dispatch]);
 
-
-
   const allMessages = useMemo(() => {
     return [...messages].sort(
-      (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      (a, b) => new Date(a.created_at) - new Date(b.created_at),
     );
   }, [messages]);
 
@@ -57,7 +60,7 @@ export const ChatLayout = () => {
       console.error("Missing required data for sending message:", {
         text: text.trim(),
         receiverId,
-        myUserId
+        myUserId,
       });
       return;
     }
@@ -65,7 +68,7 @@ export const ChatLayout = () => {
     const success = sendMessage({
       type: "NEW_MESSAGE",
       receiver_id: receiverId,
-      content: text.trim()
+      content: text.trim(),
     });
 
     if (!success) {
@@ -82,19 +85,17 @@ export const ChatLayout = () => {
   const handleFileUpload = (file) => {
     if (!file || !receiverId || !myUserId) return;
 
-  
     dispatch(
       uploadfileChatSystemAPi({
         file,
         receiverId,
         myUserId,
-      })
+      }),
     )
-      .unwrap() 
+      .unwrap()
       .then((data) => {
         console.log("File uploaded successfully:", data.fileId);
 
-     
         sendMessage({
           type: "NEW_MESSAGE",
           receiver_id: data.receiverId,
@@ -108,31 +109,29 @@ export const ChatLayout = () => {
       });
   };
 
-
-  
   const handleAttachmentClick = () => {
     fileInputRef.current.click();
   };
 
- 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-    
       if (file.size > 30 * 1024 * 1024) {
         alert("File size should be less than 10MB");
         return;
       }
 
-   
       const allowedTypes = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'text/plain',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plain",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
       if (!allowedTypes.includes(file.type)) {
@@ -143,7 +142,6 @@ export const ChatLayout = () => {
       handleFileUpload(file);
     }
 
-    
     e.target.value = null;
   };
 
@@ -151,34 +149,40 @@ export const ChatLayout = () => {
     <div className="chat-container">
       <ChatHeader
         name={name}
-   receiverId={receiverId}
+        receiverId={receiverId}
         onProfileClick={() => console.log("Profile clicked")}
-         onBack={() => navigate(-1)} 
+        onBack={() => navigate(-1)}
       />
 
       {uploading && (
-        <div style={{
-          padding: '10px',
-          background: '#f5f5f5',
-          borderBottom: '1px solid #ddd'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div
+          style={{
+            padding: "10px",
+            background: "#f5f5f5",
+            borderBottom: "1px solid #ddd",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{ flex: 1 }}>
-              <div style={{
-                height: '6px',
-                background: '#e0e0e0',
-                borderRadius: '3px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  height: '100%',
-                  background: '#007bff',
-                  width: `${uploadProgress}%`,
-                  transition: 'width 0.3s ease'
-                }} />
+              <div
+                style={{
+                  height: "6px",
+                  background: "#e0e0e0",
+                  borderRadius: "3px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    background: "#007bff",
+                    width: `${uploadProgress}%`,
+                    transition: "width 0.3s ease",
+                  }}
+                />
               </div>
             </div>
-            <span style={{ fontSize: '12px', color: '#666' }}>
+            <span style={{ fontSize: "12px", color: "#666" }}>
               {uploadProgress}%
             </span>
           </div>
@@ -204,12 +208,11 @@ export const ChatLayout = () => {
         uploading={uploading}
       />
 
-    
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.xls,.xlsx"
       />
 

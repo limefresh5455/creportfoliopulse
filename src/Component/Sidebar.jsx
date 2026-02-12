@@ -38,6 +38,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
     deal_tracker_enabled: false,
     tour_enabled: false,
     information_collaboration_enabled: false,
+    project_management_enabled: false,
   });
 
   const role = sessionStorage.getItem("role");
@@ -95,6 +96,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           tour_enabled: userdata?.tour_enabled || false,
           information_collaboration_enabled:
             userdata?.information_collaboration_enabled || false,
+          project_management_enabled:
+            userdata?.project_management_enabled || false,
         });
       } catch (error) {
         console.error("Failed to load profile:", error);
@@ -517,7 +520,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-journal-text"
           label="Messages"
           isActivePath={isActive("/messages")}
-          enabled={true}
+          enabled={profileData.gemini_chat_enabled}
         />
 
         <NavItem
@@ -525,7 +528,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           icon="bi-diagram-3"
           label="Project Management"
           isActivePath={isActive("/project-management")}
-          enabled={true}
+          enabled={profileData.project_management_enabled}
         />
 
         {!collapsed && dataCategoriesEnabled && (
