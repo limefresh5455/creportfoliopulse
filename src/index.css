@@ -1,3 +1,60 @@
+/* Background */
+.login-wrapper {
+  min-height: 100vh;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #2c5f8d 0%, #4a7ba7 100%);
+}
+
+/* Title */
+.login-title {
+  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+  letter-spacing: 0.5px;
+  color: white;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Card */
+.login-card {
+  border-radius: 10px;
+  border: none;
+}
+
+/* Inputs */
+.password-input {
+  border-radius: 15px;
+  padding: 5px;
+  padding-right: 50px;
+}
+
+.name-input {
+  border-radius: 15px;
+  padding: 5px;
+}
+
+/* Forgot link */
+.forgot-link {
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+/* Button */
+.login-btn {
+  background-color: #116cd4;
+  border-radius: 50px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Divider text */
+.or-text {
+  font-size: 0.9rem;
+}
+
 /* Animation on mount */
 .slide-in-top {
   opacity: 0;

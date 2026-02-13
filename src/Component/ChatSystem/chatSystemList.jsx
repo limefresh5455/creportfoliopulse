@@ -8,40 +8,6 @@ import {
 import { setActiveConversation } from "../../Networking/User/Slice/chatSystemSlice";
 
 const S = {
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100dvh",
-    width: "100%",
-    margin: "0 auto",
-    background: "#111B21",
-    fontFamily: "'Segoe UI', Helvetica, Arial, sans-serif",
-    color: "#E9EDEF",
-    overflowY: "hidden",
-    position: "relative",
-  },
-
-  header: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "10px 16px",
-    background: "#202C33",
-    minHeight: 56,
-    zIndex: 10,
-    flexShrink: 0,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 600,
-    color: "#E9EDEF",
-    letterSpacing: 0.2,
-  },
-  headerActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: 4,
-  },
   iconBtn: {
     background: "none",
     border: "none",
@@ -54,69 +20,6 @@ const S = {
     justifyContent: "center",
     transition: "background 0.15s",
     fontSize: 20,
-  },
-
-  selectionHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "10px 16px",
-    background: "#2A3942",
-    minHeight: 56,
-    zIndex: 10,
-    flexShrink: 0,
-  },
-  selectionCount: {
-    fontSize: 18,
-    fontWeight: 500,
-    color: "#00A884",
-  },
-
-  searchWrap: {
-    padding: "6px 12px 8px",
-    background: "#111B21",
-    flexShrink: 0,
-  },
-  searchInner: {
-    display: "flex",
-    alignItems: "center",
-    background: "#202C33",
-    borderRadius: 8,
-    padding: "6px 12px",
-    gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    background: "none",
-    border: "none",
-    outline: "none",
-    color: "#E9EDEF",
-    fontSize: 15,
-    caretColor: "#00A884",
-  },
-
-  menuWrapper: { position: "relative" },
-  dropdown: {
-    position: "absolute",
-    top: "100%",
-    right: 0,
-    background: "#233138",
-    borderRadius: 4,
-    boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-    minWidth: 180,
-    zIndex: 100,
-    overflow: "hidden",
-    animation: "fadeIn 0.1s ease",
-  },
-  menuItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "13px 20px",
-    cursor: "pointer",
-    fontSize: 15,
-    color: "#E9EDEF",
-    transition: "background 0.1s",
   },
 
   list: {
@@ -261,37 +164,6 @@ const S = {
     width: w,
     animation: "pulse 1.5s infinite",
   }),
-
-  empty: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    color: "#8696A0",
-    gap: 12,
-    paddingTop: 60,
-  },
-  emptyIcon: { fontSize: 56, opacity: 0.4 },
-  emptyText: { fontSize: 16, fontWeight: 400 },
-
-  fab: {
-    position: "absolute",
-    bottom: 24,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: "50%",
-    background: "#00A884",
-    border: "none",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 4px 16px rgba(0,168,132,0.45)",
-    zIndex: 20,
-    transition: "transform 0.15s, box-shadow 0.15s",
-  },
 };
 
 const SearchIcon = () => (
@@ -467,72 +339,45 @@ export const ChatList = () => {
 
   return (
     <>
-      <style>{`
-        @keyframes pulse {
-          0%,100% { opacity:0.4 } 50% { opacity:0.7 }
-        }
-        @keyframes fadeIn {
-          from { opacity:0; transform:translateY(-6px) }
-          to   { opacity:1; transform:translateY(0) }
-        }
-        ::-webkit-scrollbar { width:4px }
-        ::-webkit-scrollbar-track { background:transparent }
-        ::-webkit-scrollbar-thumb { background:#2C3E50; border-radius:4px }
-        .chat-item:hover { background:#182229 !important }
-        .menu-item:hover { background:#374248 !important }
-        .icon-btn:hover { background:rgba(255,255,255,0.08) !important }
-        .fab:hover { transform:scale(1.06); box-shadow:0 6px 20px rgba(0,168,132,0.55) !important }
-      `}</style>
-
-      <div style={S.root}>
+      <div className="chat-root">
         {isSelecting ? (
-          <div style={S.selectionHeader}>
-            <button
-              className="icon-btn"
-              style={S.iconBtn}
-              onClick={clearSelection}
-            >
+          <div className="selection-header">
+            <button className="icon-btn" onClick={clearSelection}>
               <BackIcon />
             </button>
-            <span style={S.selectionCount}>
+
+            <span className="selection-count">
               {selectedConversations.size} selected
             </span>
             <div style={{ flex: 1 }} />
-            <button
-              className="icon-btn"
-              style={S.iconBtn}
-              onClick={handleDelete}
-            >
+            <button className="icon-btn" onClick={handleDelete}>
               <DeleteIcon />
             </button>
           </div>
         ) : (
-          <div style={S.header}>
-            <span style={S.headerTitle}>Chats</span>
-            <div style={S.headerActions}>
+          <div className="chat-header mx-5 mx-md-0">
+            <span className="chat-title">Chats</span>
+            <div className="header-actions">
               <button
                 className="icon-btn"
-                style={S.iconBtn}
                 onClick={() => navigate("/chat/users")}
                 title="New Chat"
               >
                 <NewChatIcon />
               </button>
 
-              <div style={S.menuWrapper} ref={menuRef}>
+              <div className="menu-wrapper" ref={menuRef}>
                 <button
                   className="icon-btn"
-                  style={S.iconBtn}
                   onClick={() => setShowMenu((v) => !v)}
                 >
                   <DotsIcon />
                 </button>
 
                 {showMenu && (
-                  <div style={S.dropdown}>
+                  <div className="dropdown">
                     <div
                       className="menu-item"
-                      style={S.menuItem}
                       onClick={() => {
                         navigate("/chat/users");
                         setShowMenu(false);
@@ -542,7 +387,6 @@ export const ChatList = () => {
                     </div>
                     <div
                       className="menu-item"
-                      style={S.menuItem}
                       onClick={() => {
                         navigate("/chat/create-group");
                         setShowMenu(false);
@@ -552,7 +396,6 @@ export const ChatList = () => {
                     </div>
                     <div
                       className="menu-item"
-                      style={S.menuItem}
                       onClick={() => {
                         navigate("/settings");
                         setShowMenu(false);
@@ -568,11 +411,11 @@ export const ChatList = () => {
         )}
 
         {!isSelecting && (
-          <div style={S.searchWrap}>
-            <div style={S.searchInner}>
+          <div className="search-wrap">
+            <div className="search-inner">
               <SearchIcon />
               <input
-                style={S.searchInput}
+                className="search-input"
                 placeholder="Search or start new chat"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -581,22 +424,22 @@ export const ChatList = () => {
           </div>
         )}
 
-        <div style={S.list}>
+        <div className="chat-list">
           {loading &&
             Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} style={S.skelItem}>
-                <div style={S.skelAvatar} />
-                <div style={S.skelLines}>
-                  <div style={S.skelLine("55%")} />
-                  <div style={S.skelLine("75%")} />
+              <div className="skel-item">
+                <div className="skel-avatar" />
+                <div className="skel-lines">
+                  <div className="skel-line" style={{ width: "55%" }} />
+                  <div className="skel-line" style={{ width: "75%" }} />
                 </div>
               </div>
             ))}
 
           {!loading && filtered.length === 0 && (
-            <div style={S.empty}>
-              <span style={S.emptyIcon}>💬</span>
-              <span style={S.emptyText}>
+            <div className="empty">
+              <span className="empty-icon">💬</span>
+              <span className="empty-text">
                 {search ? "No results found" : "No conversations yet"}
               </span>
             </div>
@@ -610,25 +453,26 @@ export const ChatList = () => {
               return (
                 <div
                   key={conversation.id}
-                  className="chat-item"
-                  style={S.item(selected)}
+                  className={`chat-item ${selected ? "selected" : ""}`}
                   onClick={() => handleChatClick(conversation)}
                   onMouseDown={() => handlePressStart(conversation)}
                   onMouseUp={handlePressEnd}
                   onTouchStart={() => handlePressStart(conversation)}
                   onTouchEnd={handlePressEnd}
                 >
-                  <div style={{ position: "relative", flexShrink: 0 }}>
-                    <div style={S.avatar(conversation.is_group)}>
+                  <div style={{ position: "relative" }}>
+                    <div
+                      className={`avatar ${conversation.is_group ? "group" : ""}`}
+                    >
                       {isSelecting ? (
                         selected ? (
-                          <div style={S.checkmark}>✓</div>
+                          <div className="checkmark">✓</div>
                         ) : (
                           <>
                             {conversation.is_group
                               ? "👥"
                               : getInitials(conversation.receiver_name)}
-                            <div style={S.selectionRing} />
+                            <div className="selection-ring" />
                           </>
                         )
                       ) : conversation.is_group ? (
@@ -638,16 +482,18 @@ export const ChatList = () => {
                       )}
                     </div>
                     {!conversation.is_group && conversation.is_online && (
-                      <div style={S.onlineDot} />
+                      <div className="online-dot" />
                     )}
                   </div>
 
-                  <div style={S.textBlock}>
-                    <div style={S.topRow}>
-                      <span style={S.name}>
+                  <div className="chat-textBlock">
+                    <div className="chat-topRow">
+                      <span className="chat-name">
                         {conversation.receiver_name || "Unknown"}
                       </span>
-                      <span style={S.timestamp(unread > 0)}>
+                      <span
+                        className={`timestamp ${unread > 0 ? "unread" : ""}`}
+                      >
                         {formatTime(
                           conversation.lastMessage?.created_at ||
                             conversation.created_at,
@@ -655,13 +501,13 @@ export const ChatList = () => {
                       </span>
                     </div>
 
-                    <div style={S.bottomRow}>
-                      <span style={S.preview}>
+                    <div className="chat-bottomRow">
+                      <span className="chat-preview">
                         {conversation.lastMessage?.content || "No messages yet"}
                       </span>
 
                       {unread > 0 && (
-                        <span style={S.badge}>
+                        <span className="chat-badge">
                           {unread > 99 ? "99+" : unread}
                         </span>
                       )}
@@ -675,7 +521,6 @@ export const ChatList = () => {
         {!isSelecting && (
           <button
             className="fab"
-            style={S.fab}
             onClick={() => navigate("/chat/users")}
             title="New Chat"
           >

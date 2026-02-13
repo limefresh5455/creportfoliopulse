@@ -627,7 +627,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             <NavItem
               path="/deal-list"
               icon="bi-kanban"
-              label="Deal Tracker"
+              label="Lead and Deal Tracker"
               isActivePath={isActive("/deal-list")}
               enabled={profileData.deal_tracker_enabled}
             />

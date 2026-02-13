@@ -2,180 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAdminlistApi } from "../../Networking/SuperAdmin/AdminSuperApi";
-
-const S = {
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100dvh",
-    width: "100%",
-    margin: "0 auto",
-    background: "#111B21",
-    fontFamily: "'Segoe UI', Helvetica, Arial, sans-serif",
-    color: "#E9EDEF",
-    overflow: "hidden",
-  },
-
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "10px 16px",
-    background: "#202C33",
-    minHeight: 56,
-    flexShrink: 0,
-  },
-  backBtn: {
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    color: "#AEBAC1",
-    padding: 6,
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "background 0.15s",
-    flexShrink: 0,
-  },
-  headerTitle: {
-    fontSize: 19,
-    fontWeight: 600,
-    color: "#E9EDEF",
-    letterSpacing: 0.2,
-    flex: 1,
-  },
-
-  searchWrap: {
-    padding: "6px 12px 8px",
-    background: "#111B21",
-    flexShrink: 0,
-  },
-  searchInner: {
-    display: "flex",
-    alignItems: "center",
-    background: "#202C33",
-    borderRadius: 8,
-    padding: "7px 12px",
-    gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    background: "none",
-    border: "none",
-    outline: "none",
-    color: "#E9EDEF",
-    fontSize: 15,
-    caretColor: "#00A884",
-  },
-
-  sectionLabel: {
-    padding: "10px 16px 4px",
-    fontSize: 13,
-    fontWeight: 600,
-    color: "#00A884",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-    flexShrink: 0,
-  },
-
-  list: {
-    flex: 1,
-    overflowY: "auto",
-    overflowX: "hidden",
-  },
-
-  item: {
-    display: "flex",
-    alignItems: "center",
-    padding: "10px 16px",
-    gap: 14,
-    cursor: "pointer",
-    background: "transparent",
-    border: "none",
-    borderBottom: "1px solid #1F2C34",
-    width: "100%",
-    textAlign: "left",
-    transition: "background 0.15s",
-    color: "#E9EDEF",
-  },
-
-  avatar: {
-    width: 50,
-    height: 50,
-    minWidth: 50,
-    borderRadius: "50%",
-    background: "#2C3E50",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 20,
-    fontWeight: 600,
-    color: "#fff",
-    flexShrink: 0,
-  },
-
-  textBlock: {
-    flex: 1,
-    minWidth: 0,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 500,
-    color: "#E9EDEF",
-    marginBottom: 2,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  sub: {
-    fontSize: 13,
-    color: "#8696A0",
-  },
-
-  arrow: {
-    color: "#8696A0",
-    fontSize: 18,
-    flexShrink: 0,
-  },
-
-  skelItem: {
-    display: "flex",
-    alignItems: "center",
-    padding: "10px 16px",
-    gap: 14,
-    borderBottom: "1px solid #1F2C34",
-  },
-  skelAvatar: {
-    width: 50,
-    height: 50,
-    minWidth: 50,
-    borderRadius: "50%",
-    background: "#1F2C34",
-    animation: "pulse 1.5s infinite",
-  },
-  skelLines: { flex: 1, display: "flex", flexDirection: "column", gap: 8 },
-  skelLine: (w) => ({
-    height: 12,
-    borderRadius: 6,
-    background: "#1F2C34",
-    width: w,
-    animation: "pulse 1.5s infinite",
-  }),
-
-  empty: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    color: "#8696A0",
-    gap: 12,
-    paddingTop: 60,
-  },
-  emptyIcon: { fontSize: 52, opacity: 0.35 },
-  emptyText: { fontSize: 15 },
-};
+import "./chatSystem.css";
 
 const BackIcon = () => (
   <svg
@@ -280,24 +107,23 @@ export const UserListScreen = () => {
         }
       `}</style>
 
-      <div style={S.root}>
-        <div style={S.header}>
+      <div className="userlist-root">
+        <div className="userlist-header">
           <button
             className="back-btn"
-            style={S.backBtn}
             onClick={() => navigate(-1)}
             title="Back"
           >
             <BackIcon />
           </button>
-          <span style={S.headerTitle}>New Chat</span>
+          <span className="header-title">New Chat</span>
         </div>
 
-        <div style={S.searchWrap}>
-          <div style={S.searchInner}>
+        <div className="search-wrap">
+          <div className="search-inner">
             <SearchIcon />
             <input
-              style={S.searchInput}
+              className="search-input"
               placeholder="Search name"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -306,27 +132,27 @@ export const UserListScreen = () => {
         </div>
 
         {!loading && filtered.length > 0 && (
-          <div style={S.sectionLabel}>
+          <div className="section-label">
             Contacts on App &nbsp;·&nbsp; {filtered.length}
           </div>
         )}
 
-        <div style={S.list}>
+        <div className="userlist-list">
           {loading &&
             Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} style={S.skelItem}>
-                <div style={S.skelAvatar} />
-                <div style={S.skelLines}>
-                  <div style={S.skelLine("45%")} />
-                  <div style={S.skelLine("65%")} />
+              <div className="skel-item">
+                <div className="skel-avatar" />
+                <div className="skel-lines">
+                  <div className="skel-line" style={{ width: "45%" }} />
+                  <div className="skel-line" style={{ width: "65%" }} />
                 </div>
               </div>
             ))}
 
           {!loading && filtered.length === 0 && (
-            <div style={S.empty}>
-              <span style={S.emptyIcon}>🔍</span>
-              <span style={S.emptyText}>
+            <div className="empty">
+              <span className="empty-icon">🔍</span>
+              <span className="empty-text">
                 {search ? "No users match your search" : "No users available"}
               </span>
             </div>
@@ -337,27 +163,22 @@ export const UserListScreen = () => {
               <button
                 key={user.id ?? user.user_id}
                 className="user-item"
-                style={{
-                  ...S.item,
-                  animationDelay: `${i * 30}ms`,
-                }}
+                style={{ animationDelay: `${i * 30}ms` }}
                 onClick={() => handleUserClick(user)}
               >
                 <div
-                  style={{
-                    ...S.avatar,
-                    background: avatarColor(user.name),
-                  }}
+                  className="avatar"
+                  style={{ background: avatarColor(user.name) }}
                 >
                   {user.name?.[0]?.toUpperCase() || "?"}
                 </div>
 
-                <div style={S.textBlock}>
-                  <div style={S.name}>{user.name}</div>
-                  <div style={S.sub}>Tap to start chat</div>
+                <div className="text-block">
+                  <div className="name">{user.name}</div>
+                  <div className="sub">Tap to start chat</div>
                 </div>
 
-                <span style={S.arrow}>›</span>
+                <span className="arrow">›</span>
               </button>
             ))}
         </div>

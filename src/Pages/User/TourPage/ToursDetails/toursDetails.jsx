@@ -152,7 +152,7 @@ export const ToursDetails = () => {
               </thead>
 
               <tbody>
-                {toursList.map((tour) => (
+                {[...toursList].reverse().map((tour) => (
                   <tr key={tour.id}>
                     <td>{tour.building || "N/A"}</td>
                     <td>{tour.user_email || "N/A"}</td>

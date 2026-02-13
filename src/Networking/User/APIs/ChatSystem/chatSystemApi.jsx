@@ -176,3 +176,25 @@ export const createGroupApi = createAsyncThunk(
     }
   },
 );
+
+export const uploadChatFileApi = createAsyncThunk(
+  "chat/uploadFile",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post("/messenger/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Upload failed");
+    }
+  },
+);
+
+export const deleteMessageApi = async (messageId) => {
+  const res = await axiosInstance.delete(`/messenger/messages/${messageId}`);
+  return res.data;
+};

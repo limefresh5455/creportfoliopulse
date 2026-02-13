@@ -8,8 +8,6 @@ import {
   LoginSubmit,
 } from "../../../Networking/Admin/APIs/LoginAPIs";
 import RAGLoader from "../../../Component/Loader";
-import headerimage from "../../../assets/side_photo.jpg";
-import side_photo from "../../../assets/side_photo.jpg";
 import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 
@@ -26,13 +24,15 @@ export const Login = () => {
   useEffect(() => {
     const token = sessionStorage.getItem("access_token");
     const role = sessionStorage.getItem("role");
-
     if (!token || !role) return;
 
-    if (role === "user") navigate("/dashboard");
-    else if (role === "admin") navigate("/admin-dashboard");
-    else if (role === "superuser") navigate("/admin-management");
-  }, []);
+    const routes = {
+      user: "/dashboard",
+      admin: "/admin-dashboard",
+      superuser: "/admin-management",
+    };
+    if (routes[role]) navigate(routes[role]);
+  }, [navigate]);
 
   const validateForm = () => {
     const errs = {};
@@ -44,37 +44,28 @@ export const Login = () => {
     return Object.keys(errs).length === 0;
   };
 
+  const handleAuthResponse = (res) => {
+    sessionStorage.setItem("access_token", res.access_token);
+    sessionStorage.setItem("role", res.role);
+
+    if (res.role === "user") navigate("/dashboard", { state: { email } });
+    else if (res.role === "admin") navigate("/admin-dashboard");
+    else if (res.role === "superuser") navigate("/admin-management");
+
+    toast.success("Login successful");
+  };
+
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setLoading(true);
-
-      const idToken = credentialResponse.credential;
-
-      const res = await dispatch(googleLoginService(idToken)).unwrap();
-
-      if (res.role === "user") {
-        navigate("/dashboard");
-        sessionStorage.setItem("access_token", res.access_token);
-        sessionStorage.setItem("role", res.role);
-      } else if (res.role === "admin") {
-        navigate("/admin-dashboard");
-        sessionStorage.setItem("access_token", res.access_token);
-        sessionStorage.setItem("role", res.role);
-      } else if (res.role === "superuser") {
-        navigate("/admin-management");
-        sessionStorage.setItem("access_token", res.access_token);
-        sessionStorage.setItem("role", res.role);
-      }
-
-      toast.success("login successfull");
+      const res = await dispatch(
+        googleLoginService(credentialResponse.credential),
+      ).unwrap();
+      handleAuthResponse(res);
     } catch (err) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleforget = () => {
-    navigate("/forgot-password");
   };
 
   const handleLogin = async (e) => {
@@ -84,30 +75,9 @@ export const Login = () => {
     setLoading(true);
     try {
       const res = await dispatch(
-        LoginSubmit({
-          email: email.trim(),
-          password: password.trim(),
-        }),
+        LoginSubmit({ email: email.trim(), password: password.trim() }),
       ).unwrap();
-
-      const { role, access_token } = res;
-
-      sessionStorage.setItem("role", role);
-      sessionStorage.setItem("access_token", access_token);
-      if (res.role === "user") {
-        navigate("/dashboard", { state: { email } });
-        sessionStorage.setItem("access_token", res.access_token);
-        sessionStorage.setItem("role", res.role);
-      } else if (res.role === "admin") {
-        navigate("/admin-dashboard");
-        sessionStorage.setItem("access_token", res.access_token);
-        sessionStorage.setItem("role", res.role);
-      } else if (res.role === "superuser") {
-        navigate("/admin-management");
-        sessionStorage.setItem("access_token", res.access_token);
-        sessionStorage.setItem("role", res.role);
-      }
-      toast.success("login successful");
+      handleAuthResponse(res);
     } catch (err) {
     } finally {
       setLoading(false);
@@ -115,111 +85,145 @@ export const Login = () => {
   };
 
   return (
-    <div className="login-container d-flex vh-100 position-relative">
-      <div
-        className="d-none d-md-flex col-md-6 bg-dark text-white justify-content-center align-items-center"
-        style={{
-          backgroundImage: `url(${side_photo})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          position: "relative",
-        }}
-      >
-        <h1 className="display-5 fw-bold position-relative z-1">
-          CRE Portfolio Pulse
-        </h1>
-      </div>
-
-      <div className="login-right col-12 col-md-6 d-flex justify-content-center align-items-center bg-white">
-        <div
-          className="login-card shadow rounded p-4 w-100"
-          style={{ maxWidth: "400px" }}
-        >
-          <div className="mb-4 text-center">
-            <img
-              src={headerimage}
-              alt="Logo"
-              style={{ height: 80, width: 100 }}
-            />
-            <h4 className="fw-bold mt-3">LOGIN</h4>
-            <p className="text-muted small">Please enter your details</p>
-          </div>
-
-          <form onSubmit={handleLogin}>
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                placeholder="Enter Email..."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              {errors.email && (
-                <div className="invalid-feedback">{errors.email}</div>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Your Password</label>
-              <div className="input-group">
-                <span className="input-group-text">
-                  <i className="bi bi-lock"></i>
-                </span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className={`form-control ${
-                    errors.password ? "is-invalid" : ""
-                  }`}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-                <span
-                  className="input-group-text"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </span>
-                {errors.password && (
-                  <div className="invalid-feedback">{errors.password}</div>
-                )}
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-dark w-100 mb-3"
-              disabled={loading}
-            >
-              Sign in
-            </button>
-            <div className="mb-3">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => toast.error("Google Login Failed")}
-                width="100%"
-              />
+    <div
+      className="d-flex justify-content-center align-items-center min-vh-100 w-100"
+      style={{
+        background: "linear-gradient(135deg, #2c5f8d 0%, #4a7ba7 100%)",
+        padding: "20px 0",
+      }}
+    >
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-md-6">
+            <div className="text-center mb-4">
+              <h3
+                className="fw-medium text-white"
+                style={{
+                  fontSize: "clamp(1.25rem, 5vw, 1.75rem)",
+                  letterSpacing: "0.5px",
+                  lineHeight: "1.3",
+                }}
+              >
+                Bespoke AIR | Portfolio Pulse Secure Portal
+              </h3>
             </div>
 
             <div
-              className="text-end"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleforget({ email })}
+              className="card shadow-lg border-0"
+              style={{ borderRadius: "12px", overflow: "hidden" }}
             >
-              Forgot password?
+              <div className="card-body p-3 p-md-4">
+                <form onSubmit={handleLogin}>
+                  <div className="mb-4">
+                    <label className="form-label text-muted mb-2 small">
+                      Username
+                    </label>
+                    <input
+                      type="email"
+                      className={`form-control form-control-lg ${errors.email ? "is-invalid" : ""}`}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                      style={{ borderRadius: "12px", fontSize: "1rem" }}
+                    />
+                    {errors.email && (
+                      <div className="invalid-feedback">{errors.email}</div>
+                    )}
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label text-muted mb-2 small">
+                      Password
+                    </label>
+                    <div className="position-relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className={`form-control form-control-lg ${errors.password ? "is-invalid" : ""}`}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={loading}
+                        style={{
+                          borderRadius: "12px",
+                          paddingRight: "45px",
+                          fontSize: "1rem",
+                        }}
+                      />
+                      <span
+                        className="position-absolute end-0 top-50 translate-middle-y me-3"
+                        style={{ cursor: "pointer", color: "#6b7280" }}
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </span>
+                    </div>
+                    {errors.password && (
+                      <div className="invalid-feedback d-block small mt-1">
+                        {errors.password}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-end mb-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/forgot-password")}
+                      className="btn btn-link p-0 text-decoration-none shadow-none"
+                      style={{ color: "#0066cc", fontSize: "0.85rem" }}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-lg w-100 fw-semibold mb-4"
+                    disabled={loading}
+                    style={{
+                      backgroundColor: "#0066cc",
+                      borderRadius: "25px",
+                      padding: "5px",
+                      border: "none",
+                    }}
+                  >
+                    {loading ? "Signing in..." : "Sign In"}
+                  </button>
+
+                  <div className="text-center mb-2">
+                    <hr className="text-muted opacity-25" />
+                    <span
+                      className="bg-white px-2 text-muted small position-relative"
+                      style={{ top: "-25px" }}
+                    >
+                      Or sign in with
+                    </span>
+                  </div>
+
+                  <div className="d-flex justify-content-center w-100 overflow-hidden">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => toast.error("Google Login Failed")}
+                      useOneTap
+                      shape="pill"
+                      theme="outline"
+                      width="100%"
+                    />
+                  </div>
+                </form>
+              </div>
             </div>
-          </form>
+          </div>
         </div>
       </div>
 
       {loading && (
         <div
-          className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-75"
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-75"
           style={{ zIndex: 9999 }}
         >
           <RAGLoader />

@@ -87,7 +87,7 @@ const DealList = () => {
       const completedStages = deal.stages.filter((stage) => stage.is_completed);
       if (completedStages.length > 0) {
         const lastCompleted = completedStages.sort(
-          (a, b) => new Date(b.completed_at) - new Date(a.completed_at)
+          (a, b) => new Date(b.completed_at) - new Date(a.completed_at),
         )[0];
         return lastCompleted.stage_name;
       }
@@ -119,7 +119,7 @@ const DealList = () => {
           <div className="d-flex align-items-center justify-content-between gap-2 flex-grow-1 min-w-0">
             <div className="d-flex flex-column justify-content-center ms-4 text-truncate">
               <h5 className="mb-0 text-light text-truncate">
-                View Deal Tracker
+                Lead and Deal Tracker
               </h5>
               <small className="text-light text-truncate">
                 (Main List View)
@@ -359,7 +359,6 @@ const DealList = () => {
                     </td>
                     <td className="">
                       <div className="table-icons">
-
                         <button
                           className="btn btn-sm text-white me-2"
                           style={{

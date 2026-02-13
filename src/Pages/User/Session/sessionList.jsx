@@ -159,7 +159,7 @@ export const SessionList = ({ setShowSessionModal }) => {
           state: { sessionId: session.session_id, type: session.category },
         });
         break;
-      case "Building":
+      case "building_info":
         navigate("/building-chat", {
           state: { sessionId: session.session_id, type: session.category },
         });

@@ -7,6 +7,7 @@ import { ChatHeader } from "./chatSystemHeader";
 import { ChatMessages } from "./messageBubble";
 import { ChatInput } from "./messageInput";
 import { UserProfile } from "./userProfile";
+import "./chatSystem.css";
 
 export const ChatLayout = () => {
   const { conversationId } = useParams();
@@ -16,6 +17,7 @@ export const ChatLayout = () => {
   const name = location.state?.name;
   const isGroup = location.state?.is_group;
   const participants = location.state?.participants;
+  console.log(participants, "participants");
 
   const dispatch = useDispatch();
   const { messages, userStatus } = useSelector((s) => s.chatSystemSlice);
@@ -58,47 +60,28 @@ export const ChatLayout = () => {
   };
 
   return (
-    <>
-      <style>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #111B21; }
-        .chat-root {
-          display: flex;
-          flex-direction: column;
-          height: 100dvh;
-          width: 100%;
-          margin: 0 auto;
-          background: #111B21;
-          font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-          color: #E9EDEF;
-          position: relative;
-          overflow: hidden;
-        }
-      `}</style>
+    <div className="chat-root">
+      <ChatHeader
+        name={name}
+        receiverId={receiverId}
+        isGroup={isGroup}
+        participants={participants}
+        status={userStatus?.[receiverId]}
+        onProfileClick={() => setShowProfile(true)}
+      />
 
-      <div className="chat-root">
-        <ChatHeader
-          name={name}
-          receiverId={receiverId}
-          isGroup={isGroup}
-          participants={participants}
-          status={userStatus?.[receiverId]}
-          onProfileClick={() => setShowProfile(true)}
-        />
+      <ChatMessages messages={allMessages} myUserId={myUserId} />
 
-        <ChatMessages messages={allMessages} myUserId={myUserId} />
+      <ChatInput text={text} setText={setText} onSend={handleSend} />
 
-        <ChatInput text={text} setText={setText} onSend={handleSend} />
-
-        <UserProfile
-          open={showProfile}
-          onClose={() => setShowProfile(false)}
-          userId={receiverId}
-          name={name}
-          isGroup={isGroup}
-          participants={participants}
-        />
-      </div>
-    </>
+      <UserProfile
+        open={showProfile}
+        onClose={() => setShowProfile(false)}
+        userId={receiverId}
+        name={name}
+        isGroup={isGroup}
+        participants={participants}
+      />
+    </div>
   );
 };
