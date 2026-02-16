@@ -93,6 +93,7 @@ import { FireSafetyandBuildingList } from "./Pages/User/FireSafetyandBuildingMec
 import { FireSafetyBuildingList } from "./Pages/Admin/FireSafetyandBuildingMechenical/fireSafety&BuildingMechenicalList";
 import { WebSocketProvider } from "./Context/WebSocketContext";
 import { CreateGroupScreen } from "./Component/ChatSystem/GroupChat/CreateGroupScreen";
+import { RoleBasedRedirect } from "./Route/roleBasedRedirect";
 
 function App() {
   useEffect(() => {
@@ -113,8 +114,8 @@ function App() {
         <WebSocketProvider>
           <Router>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
+              {/* <Route path="/" element={<Home />} /> */}
+              <Route path="/" element={<Login />} />
               <Route path="/verify-otp" element={<VerifyOtp />} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -258,7 +259,16 @@ function App() {
 
                 <Route path="/space-inquiry" element={<SpaceInquiry />} />
               </Route>
-
+              <Route
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "user", "superuser"]}>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/no-access" element={<NoAccess />} />
+                <Route path="*" element={<RoleBasedRedirect />} />
+              </Route>
               <Route
                 element={
                   <ProtectedRoute allowedRoles={["user"]}>
@@ -266,8 +276,6 @@ function App() {
                   </ProtectedRoute>
                 }
               >
-                <Route path="/no-access" element={<NoAccess />} />
-
                 <Route path="/dashboard" element={<Dashboard />} />
 
                 <Route path="/portfolio-chat" element={<PortfolioChat />} />

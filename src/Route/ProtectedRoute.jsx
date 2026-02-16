@@ -7,6 +7,7 @@ import { USER_ROUTE_FEATURE_MAP } from "./userRouteFeatureMap";
 
 const LAST_ALLOWED_ROUTE = "last_allowed_route";
 const IDLE_TIMEOUT = 3 * 60 * 1000;
+
 const matchRoute = (pathname, routeMap) => {
   return Object.keys(routeMap).find((route) => {
     if (route.includes(":")) {
@@ -17,13 +18,14 @@ const matchRoute = (pathname, routeMap) => {
   });
 };
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const token = sessionStorage.getItem("access_token");
   const role = sessionStorage.getItem("role");
 
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const toastShownRef = useRef(false);
   const idleTimerRef = useRef(null);
 
@@ -34,7 +36,6 @@ const ProtectedRoute = ({ children }) => {
       dispatch(getProfileDetail());
     }
   }, [dispatch, token, role, userdata]);
-
 
   useEffect(() => {
     if (!token) return;
@@ -58,60 +59,67 @@ const ProtectedRoute = ({ children }) => {
       "touchstart",
     ];
 
-    events.forEach((event) =>
-      window.addEventListener(event, resetIdleTimer)
-    );
+    events.forEach((event) => window.addEventListener(event, resetIdleTimer));
 
     resetIdleTimer();
 
     return () => {
       clearTimeout(idleTimerRef.current);
       events.forEach((event) =>
-        window.removeEventListener(event, resetIdleTimer)
+        window.removeEventListener(event, resetIdleTimer),
       );
     };
   }, [token, navigate]);
 
- 
-  if (!token || !role) {
-    return <Navigate to="/" replace />;
-  }
+  const roleNotAllowed =
+    allowedRoles.length > 0 && !allowedRoles.includes(role);
 
-  let hasAccess = true;
+  let hasFeatureAccess = true;
 
   if (role === "user" && userdata) {
-    const matchedRoute = matchRoute(
-      location.pathname,
-      USER_ROUTE_FEATURE_MAP
-    );
+    const matchedRoute = matchRoute(location.pathname, USER_ROUTE_FEATURE_MAP);
 
     const requiredFeatures = matchedRoute
       ? USER_ROUTE_FEATURE_MAP[matchedRoute]
       : [];
 
     if (requiredFeatures.length > 0) {
-      hasAccess = requiredFeatures.every(
-        (feature) => userdata[feature] === true
+      hasFeatureAccess = requiredFeatures.every(
+        (feature) => userdata[feature] === true,
       );
     }
   }
 
   useEffect(() => {
-    if (!hasAccess && !toastShownRef.current) {
+    if (roleNotAllowed && !toastShownRef.current) {
+      toast.error("You don’t have permission to access this page.");
+      toastShownRef.current = true;
+    }
+  }, [roleNotAllowed]);
+
+  useEffect(() => {
+    if (!hasFeatureAccess && !toastShownRef.current) {
       toast.error("You don’t have permission to access this feature.");
       toastShownRef.current = true;
     }
-  }, [hasAccess]);
+  }, [hasFeatureAccess]);
 
   useEffect(() => {
-    if (hasAccess) {
+    if (hasFeatureAccess) {
       sessionStorage.setItem(LAST_ALLOWED_ROUTE, location.pathname);
     }
-  }, [hasAccess, location.pathname]);
+  }, [hasFeatureAccess, location.pathname]);
 
-  if (!hasAccess) {
-    navigate("/no-access", { replace: true });
-    return null;
+  if (!token || !role) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (roleNotAllowed) {
+    return <Navigate to="/no-access" replace />;
+  }
+
+  if (!hasFeatureAccess) {
+    return <Navigate to="/no-access" replace />;
   }
 
   return children;

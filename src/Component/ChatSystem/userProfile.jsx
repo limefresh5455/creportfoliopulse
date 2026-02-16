@@ -1,17 +1,51 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../../Networking/Admin/APIs/AxiosInstance";
+import {
+  fetchMessages,
+  leaveGroupApi,
+} from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
 import "./chatSystem.css";
+import { toast } from "react-toastify";
 
 export const UserProfile = ({
   open,
   onClose,
-  userId,
   name,
   email,
   status,
   isGroup = false,
   participants = [],
-  about = "Hey there! I am using WhatsApp.",
+  conversationId,
+  about = "Hey there! I am using Portfoliopulse.",
 }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [showAllMedia, setShowAllMedia] = useState(false);
+  const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
+  const [isDeletingFile, setIsDeletingFile] = useState(false);
+
+  const longPressTimerRef = useRef(null);
+
+  const { messages } = useSelector((s) => s.chatSystemSlice);
+
+  const mediaFiles = messages
+    .filter((msg) => msg.file_url && msg.file_name && msg.file_id)
+    .map((msg) => ({
+      id: msg.id,
+      file_id: msg.file_id,
+      url: msg.file_url,
+      name: msg.file_name,
+    }));
+
+  useEffect(() => {
+    if (conversationId) dispatch(fetchMessages(conversationId));
+  }, [conversationId, dispatch]);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -22,6 +56,59 @@ export const UserProfile = ({
       document.body.style.overflow = "unset";
     };
   }, [open]);
+
+  const startLongPress = (file) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setFileToDelete(file);
+      setShowDeleteFileModal(true);
+    }, 500);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleDeleteFile = async () => {
+    if (!fileToDelete) return;
+    setIsDeletingFile(true);
+    try {
+      await axiosInstance.delete(`/messenger/file/${fileToDelete.file_id}`);
+      toast.success("File deleted");
+      dispatch(fetchMessages(conversationId));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete file");
+    } finally {
+      setIsDeletingFile(false);
+      setShowDeleteFileModal(false);
+      setFileToDelete(null);
+    }
+  };
+
+  const handleExitGroup = () => {
+    if (!conversationId) return;
+    setShowExitConfirm(true);
+  };
+
+  const confirmExitGroup = async () => {
+    if (!conversationId) return;
+    setIsLeaving(true);
+    try {
+      const result = await dispatch(leaveGroupApi(conversationId));
+      if (leaveGroupApi.fulfilled.match(result)) {
+        navigate("/messages");
+      } else {
+        toast.error(result.payload || "Failed to leave group");
+      }
+    } catch (err) {
+    } finally {
+      setIsLeaving(false);
+      setShowExitConfirm(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -41,6 +128,12 @@ export const UserProfile = ({
       return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
     return date.toLocaleDateString();
+  };
+
+  const isImage = (fileName) => {
+    if (!fileName) return false;
+    const ext = fileName.split(".").pop().toLowerCase();
+    return ["jpg", "jpeg", "png", "gif", "webp", "bmp"].includes(ext);
   };
 
   return (
@@ -89,71 +182,42 @@ export const UserProfile = ({
             </div>
           )}
 
-          {!isGroup && (
-            <div className="profile-section">
-              <div className="profile-section-label">Phone</div>
-              <div className="profile-info-row">
-                <i className="ri-phone-line profile-info-icon" />
-                <div className="profile-info-content">
-                  <div className="profile-info-value">
-                    {email || "+1 234 567 8900"}
-                  </div>
-                  <div className="profile-info-label">Mobile</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isGroup && participants && participants.length > 0 && (
-            <div className="profile-section">
-              <div className="profile-section-label">
-                {participants.length} Participant
-                {participants.length !== 1 ? "s" : ""}
-              </div>
-              <div className="participants-list">
-                {participants.map((participant, index) => (
-                  <div key={index} className="participant-item">
-                    <div className="participant-avatar">
-                      {participant.name?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
-                    <div>
-                      <div className="participant-name">
-                        {participant.name || "Unnamed"}
-                      </div>
-                      {participant.role && (
-                        <div className="participant-role">
-                          {participant.role}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="profile-section">
             <div className="profile-section-label">Media, links and docs</div>
             <div className="media-grid">
-              <div className="media-item">
-                <i className="ri-image-line" />
-              </div>
-              <div className="media-item">
-                <i className="ri-image-line" />
-              </div>
-              <div className="media-item">
-                <i className="ri-image-line" />
-              </div>
-            </div>
-          </div>
-
-          <div className="profile-section">
-            <div className="profile-info-row">
-              <i className="ri-notification-3-line profile-info-icon" />
-              <div className="profile-info-content">
-                <div className="profile-info-label">Notifications</div>
-                <div className="profile-info-value">On</div>
-              </div>
+              {mediaFiles.length === 0 ? (
+                <div className="no-media">No media shared yet</div>
+              ) : (
+                mediaFiles.slice(0, 6).map((file) => (
+                  <a
+                    key={file.id}
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="media-item"
+                    onClick={(e) => {
+                      if (fileToDelete) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onTouchStart={() => startLongPress(file)}
+                    onTouchEnd={cancelLongPress}
+                    onTouchMove={cancelLongPress}
+                    onMouseDown={() => startLongPress(file)}
+                    onMouseUp={cancelLongPress}
+                    onMouseLeave={cancelLongPress}
+                  >
+                    {isImage(file.name) ? (
+                      <img src={file.url} alt={file.name} />
+                    ) : (
+                      <div className="file-thumb">
+                        <i className="ri-file-line" />
+                        <span className="file-name">{file.name}</span>
+                      </div>
+                    )}
+                  </a>
+                ))
+              )}
             </div>
           </div>
 
@@ -165,24 +229,13 @@ export const UserProfile = ({
           </div>
 
           <div className="profile-section">
-            <button className="profile-action-btn">
-              <i className="ri-volume-mute-line profile-action-icon" />
-              <span>Mute notifications</span>
-            </button>
-            <button className="profile-action-btn">
+            <button
+              className="profile-action-btn"
+              onClick={() => setShowAllMedia(true)}
+            >
               <i className="ri-image-line profile-action-icon" />
               <span>Media, links, and docs</span>
             </button>
-            <button className="profile-action-btn">
-              <i className="ri-star-line profile-action-icon" />
-              <span>Starred messages</span>
-            </button>
-            {!isGroup && (
-              <button className="profile-action-btn">
-                <i className="ri-lock-line profile-action-icon" />
-                <span>Encryption</span>
-              </button>
-            )}
           </div>
 
           <div className="profile-section">
@@ -191,22 +244,18 @@ export const UserProfile = ({
                 <button
                   className="profile-action-btn"
                   style={{ color: "#EA4335" }}
+                  onClick={handleExitGroup}
+                  disabled={isLeaving}
                 >
                   <i
-                    className="ri-logout-box-r-line profile-action-icon"
+                    className={`profile-action-icon ${
+                      isLeaving
+                        ? "ri-loader-4-line spinning"
+                        : "ri-logout-box-r-line"
+                    }`}
                     style={{ color: "#EA4335" }}
                   />
-                  <span>Exit group</span>
-                </button>
-                <button
-                  className="profile-action-btn"
-                  style={{ color: "#EA4335" }}
-                >
-                  <i
-                    className="ri-user-unfollow-line profile-action-icon"
-                    style={{ color: "#EA4335" }}
-                  />
-                  <span>Report group</span>
+                  <span>{isLeaving ? "Leaving..." : "Exit group"}</span>
                 </button>
               </>
             ) : (
@@ -221,16 +270,6 @@ export const UserProfile = ({
                   />
                   <span>Block {name}</span>
                 </button>
-                <button
-                  className="profile-action-btn"
-                  style={{ color: "#EA4335" }}
-                >
-                  <i
-                    className="ri-spam-2-line profile-action-icon"
-                    style={{ color: "#EA4335" }}
-                  />
-                  <span>Report contact</span>
-                </button>
               </>
             )}
             <button className="profile-action-btn" style={{ color: "#EA4335" }}>
@@ -243,6 +282,141 @@ export const UserProfile = ({
           </div>
         </div>
       </div>
+
+      {showAllMedia && (
+        <div className="modal-overlay" onClick={() => setShowAllMedia(false)}>
+          <div
+            className="modal-content media-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>Media, links and docs</h3>
+              <button
+                className="close-btn"
+                onClick={() => setShowAllMedia(false)}
+              >
+                <i className="ri-close-line" />
+              </button>
+            </div>
+            <div className="modal-body">
+              {mediaFiles.length === 0 ? (
+                <div className="no-media">No media shared yet</div>
+              ) : (
+                <div className="media-grid full">
+                  {mediaFiles.map((file) => (
+                    <a
+                      key={file.id}
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="media-item"
+                      onClick={(e) => {
+                        if (fileToDelete) e.preventDefault();
+                      }}
+                      onTouchStart={() => startLongPress(file)}
+                      onTouchEnd={cancelLongPress}
+                      onTouchMove={cancelLongPress}
+                      onMouseDown={() => startLongPress(file)}
+                      onMouseUp={cancelLongPress}
+                      onMouseLeave={cancelLongPress}
+                    >
+                      {isImage(file.name) ? (
+                        <img src={file.url} alt={file.name} />
+                      ) : (
+                        <div className="file-thumb">
+                          <i className="ri-file-line" />
+                          <span className="file-name">{file.name}</span>
+                        </div>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete file confirmation modal */}
+      {showDeleteFileModal && fileToDelete && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowDeleteFileModal(false)}
+        >
+          <div
+            className="modal-content delete-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-dark">Delete file?</h3>
+            <p className="text-dark">
+              Are you sure you want to delete "{fileToDelete.name}"?
+            </p>
+            <div className="modal-actions">
+              <button
+                className="cancel"
+                onClick={() => {
+                  setShowDeleteFileModal(false);
+                  setFileToDelete(null);
+                }}
+                disabled={isDeletingFile}
+              >
+                Cancel
+              </button>
+              <button
+                className="delete"
+                onClick={handleDeleteFile}
+                disabled={isDeletingFile}
+                style={{
+                  opacity: isDeletingFile ? 0.7 : 1,
+                  cursor: isDeletingFile ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                {isDeletingFile && <i className="ri-loader-4-line spinning" />}
+                {isDeletingFile ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Exit group confirmation modal */}
+      {showExitConfirm && (
+        <div className="wa-modal-overlay">
+          <div className="wa-modal">
+            <h3 className="text-dark">Leave Group?</h3>
+            <p className="text-dark">
+              You won’t receive messages from this group anymore.
+            </p>
+            <div className="wa-actions">
+              <button
+                className="cancel"
+                onClick={() => setShowExitConfirm(false)}
+                disabled={isLeaving}
+              >
+                Cancel
+              </button>
+              <button
+                className="leave"
+                onClick={confirmExitGroup}
+                disabled={isLeaving}
+                style={{
+                  opacity: isLeaving ? 0.7 : 1,
+                  cursor: isLeaving ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                {isLeaving && <i className="ri-loader-4-line spinning" />}
+                {isLeaving ? "Leaving..." : "Leave"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

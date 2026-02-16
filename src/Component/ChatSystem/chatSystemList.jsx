@@ -355,7 +355,7 @@ export const ChatList = () => {
             </button>
           </div>
         ) : (
-          <div className="chat-header mx-5 mx-md-0">
+          <div className="chat-header2 mx-5 mx-md-0">
             <span className="chat-title">Chats</span>
             <div className="header-actions">
               <button

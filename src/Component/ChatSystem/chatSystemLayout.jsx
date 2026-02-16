@@ -17,7 +17,6 @@ export const ChatLayout = () => {
   const name = location.state?.name;
   const isGroup = location.state?.is_group;
   const participants = location.state?.participants;
-  console.log(participants, "participants");
 
   const dispatch = useDispatch();
   const { messages, userStatus } = useSelector((s) => s.chatSystemSlice);
@@ -47,16 +46,27 @@ export const ChatLayout = () => {
     [messages],
   );
 
-  const handleSend = () => {
-    if (!text.trim()) return;
+  // const handleSend = () => {
+  //   if (!text.trim()) return;
+  //   sendMessage({
+  //     type: "NEW_MESSAGE",
+  //     conversation_id: Number(conversationId),
+  //     sender_id: myUserId,
+  //     receiver_id: receiverId,
+  //     content: text.trim(),
+  //   });
+  //   setText("");
+  // };
+
+  const handleSend = (payload) => {
     sendMessage({
       type: "NEW_MESSAGE",
       conversation_id: Number(conversationId),
       sender_id: myUserId,
       receiver_id: receiverId,
-      content: text.trim(),
+      content: payload.content || "",
+      file_id: payload.file_id,
     });
-    setText("");
   };
 
   return (
@@ -72,7 +82,24 @@ export const ChatLayout = () => {
 
       <ChatMessages messages={allMessages} myUserId={myUserId} />
 
-      <ChatInput text={text} setText={setText} onSend={handleSend} />
+      {/* <ChatInput text={text} setText={setText} onSend={handleSend} /> */}
+
+      <ChatInput
+        text={text}
+        setText={setText}
+        onSend={handleSend}
+        conversationId={conversationId}
+        myUserId={myUserId}
+      />
+
+      {/* <UserProfile
+        open={showProfile}
+        onClose={() => setShowProfile(false)}
+        userId={receiverId}
+        name={name}
+        isGroup={isGroup}
+        participants={participants}
+      /> */}
 
       <UserProfile
         open={showProfile}
@@ -81,6 +108,8 @@ export const ChatLayout = () => {
         name={name}
         isGroup={isGroup}
         participants={participants}
+        conversationId={conversationId}
+        onExitGroup={() => navigate("/conversations")}
       />
     </div>
   );

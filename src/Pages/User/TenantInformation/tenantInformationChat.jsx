@@ -3,7 +3,7 @@ import { ChatWindow } from "../../../Component/ChatWindow";
 
 export const TenantInformation = () => {
   const location = useLocation();
-  const buildingId = location?.state?.office?.buildingId;
+  const buildingId = location?.state?.buildingId;
   const address = location?.state?.address?.address;
 
   return (

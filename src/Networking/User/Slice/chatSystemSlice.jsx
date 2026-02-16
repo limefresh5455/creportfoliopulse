@@ -3,13 +3,14 @@ import {
   fetchConversations,
   fetchMessages,
   deleteMessage,
+  leaveGroupApi,
 } from "../APIs/ChatSystem/chatSystemApi";
 
 const initialState = {
   conversations: [],
   messages: [],
   activeConversation: null,
-
+  leavingGroup: null,
   userStatus: {},
 
   typingUsers: {},
@@ -102,6 +103,15 @@ const chatSystemSlice = createSlice({
         delete state.typingUsers[conversationId];
       }
     },
+
+    deleteMessageSocket: (state, action) => {
+      const { conversation_id, message_id } = action.payload;
+      if (!conversation_id || !message_id) return;
+      state.messages = state.messages.filter(
+        (msg) =>
+          !(msg.conversation_id === conversation_id && msg.id === message_id),
+      );
+    },
   },
 
   extraReducers: (builder) => {
@@ -138,6 +148,23 @@ const chatSystemSlice = createSlice({
           (msg) => msg.id !== action.payload,
         );
       });
+    builder
+      .addCase(leaveGroupApi.pending, (state) => {
+        state.leavingGroup = true;
+      })
+
+      .addCase(leaveGroupApi.fulfilled, (state, action) => {
+        state.leavingGroup = false;
+
+        state.conversations = state.conversations.filter(
+          (conv) => conv.id !== action.payload.conversationId,
+        );
+      })
+
+      .addCase(leaveGroupApi.rejected, (state, action) => {
+        state.leavingGroup = false;
+        state.error = action.payload;
+      });
   },
 });
 
@@ -149,6 +176,7 @@ export const {
   setTypingStatus,
   clearMessages,
   clearTypingForConversation,
+  deleteMessageSocket,
 } = chatSystemSlice.actions;
 
 export default chatSystemSlice.reducer;

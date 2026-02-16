@@ -48,10 +48,22 @@ export const BuildingInfoList = () => {
     }
   }, [BuildingList, searchTerm, loading]);
 
+  // const goToChat = (buildingId, category) => {
+  //   navigate("/building-info-upload", {
+  //     state: { buildingId, category },
+  //   });
+  // };
+
   const goToChat = (buildingId, category) => {
-    navigate("/building-info-upload", {
-      state: { buildingId, category },
-    });
+    if (category === "tenant_info") {
+      navigate("/tenant-info-upload", {
+        state: { buildingId, category },
+      });
+    } else {
+      navigate("/building-info-upload", {
+        state: { buildingId, category },
+      });
+    }
   };
 
   const startEdit = (building) => {
@@ -244,6 +256,12 @@ export const BuildingInfoList = () => {
                     onClick={() => goToChat(building.id, "building_info")}
                   >
                     Building Info
+                  </button>
+                  <button
+                    className="btn btn-dark btn-sm"
+                    onClick={() => goToChat(building.id, "tenant_info")}
+                  >
+                    Tenant Info
                   </button>
                 </div>
               </div>

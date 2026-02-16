@@ -69,7 +69,7 @@ export const Home = () => {
         <div className="d-grid gap-3">
           <button
             className="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
           >
             <FaUser /> Login
           </button>

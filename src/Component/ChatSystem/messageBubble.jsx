@@ -1,28 +1,143 @@
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { format, isToday, isYesterday } from "date-fns";
 import axiosInstance from "../../Networking/Admin/APIs/AxiosInstance";
+import { deleteMessageSocket } from "../../Networking/User/Slice/chatSystemSlice";
 import "./chatSystem.css";
+import { fetchMessages } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+
+const normalizeSocketMessage = (data) => {
+  return {
+    id: data.message_id,
+    sender_id: data.sender_id,
+    sender_name: data.sender_name,
+    content: data.content || "",
+    created_at: data.created_at,
+    conversation_id: data.conversation_id,
+    read: false,
+
+    file_id: data.file_id || null,
+    file_url: data.file_url || null,
+    file_name: data.file_name || null,
+    file_type: data.file_name
+      ? data.file_name.split(".").pop().toLowerCase()
+      : null,
+  };
+};
+
+/* ---------------- COMPONENT ---------------- */
 
 export const ChatMessages = ({ messages, myUserId, conversationId }) => {
+  const dispatch = useDispatch();
   const bottomRef = useRef(null);
   const hasScrolledInitially = useRef(false);
   const prevMsgCount = useRef(0);
+  const longPressTimerRef = useRef(null);
+  const containerRef = useRef(null);
 
-  const [localMessages, setLocalMessages] = useState(messages);
+  /* ---------- STATE ---------- */
 
-  // selection mode
+  const [localMessages, setLocalMessages] = useState([]);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [selectionMode, setSelectionMode] = useState(false);
+  const [deletingIds, setDeletingIds] = useState(new Set());
+  const [longPressedMsgId, setLongPressedMsgId] = useState(null);
+
+  /* ---------- FETCH ON CONVERSATION CHANGE ---------- */
 
   useEffect(() => {
-    setLocalMessages(messages);
+    if (conversationId) {
+      dispatch(fetchMessages(conversationId));
+    }
+  }, [conversationId, dispatch]);
+
+  /* ---------- RESET STATE ON CONVERSATION SWITCH ---------- */
+
+  useEffect(() => {
+    setLocalMessages([]);
+    setSelectedMessages([]);
+    setSelectionMode(false);
+    setLongPressedMsgId(null);
+
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    hasScrolledInitially.current = false;
+    prevMsgCount.current = 0;
+  }, [conversationId]);
+
+  /* ---------- MERGE REDUX MESSAGES ---------- */
+
+  useEffect(() => {
+    setLocalMessages((prev) => {
+      const existingIds = new Set(prev.map((m) => m.id));
+      const merged = [...prev];
+
+      messages.forEach((msg) => {
+        if (!existingIds.has(msg.id)) merged.push(msg);
+      });
+
+      return merged.sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at),
+      );
+    });
   }, [messages]);
+
+  /* ---------- SOCKET REALTIME ---------- */
+
+  useEffect(() => {
+    if (!window.chatSocket) return;
+
+    const socket = window.chatSocket;
+
+    const handleMessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (
+        data.type === "NEW_MESSAGE" &&
+        Number(data.conversation_id) === Number(conversationId)
+      ) {
+        const normalized = normalizeSocketMessage(data);
+
+        setLocalMessages((prev) => {
+          if (prev.some((m) => m.id === normalized.id)) return prev;
+
+          return [...prev, normalized].sort(
+            (a, b) => new Date(a.created_at) - new Date(b.created_at),
+          );
+        });
+      }
+
+      if (
+        data.type === "DELETE_MESSAGE" &&
+        Number(data.conversation_id) === Number(conversationId)
+      ) {
+        setLocalMessages((prev) =>
+          prev.filter((m) => m.id !== data.message_id),
+        );
+      }
+    };
+
+    socket.addEventListener("message", handleMessage);
+    return () => socket.removeEventListener("message", handleMessage);
+  }, [conversationId]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setLongPressedMsgId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const typingUsers = useSelector((state) => state.chatSystemSlice.typingUsers);
   const typing = typingUsers?.[conversationId] || {};
 
-  // auto scroll
   useEffect(() => {
     if (localMessages.length === 0) return;
 
@@ -39,63 +154,115 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
     }
   }, [localMessages]);
 
-  // select message
+  const startLongPress = (id) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setLongPressedMsgId(id);
+    }, 500);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
   const toggleSelectMessage = (id) => {
     setSelectedMessages((prev) => {
       if (prev.includes(id)) {
         const updated = prev.filter((i) => i !== id);
-        if (updated.length === 0) setSelectionMode(false);
+        if (!updated.length) setSelectionMode(false);
         return updated;
-      } else {
-        setSelectionMode(true);
-        return [...prev, id];
       }
+      setSelectionMode(true);
+      return [...prev, id];
     });
   };
 
-  // delete selected
+  const deleteSingleMessage = async (id) => {
+    if (!window.confirm("Delete this message?")) return;
+    if (deletingIds.has(id)) return;
+
+    setDeletingIds((p) => new Set(p).add(id));
+
+    try {
+      await axiosInstance.delete(`/messenger/messages/${id}`);
+
+      dispatch(
+        deleteMessageSocket({
+          conversation_id: conversationId,
+          message_id: id,
+        }),
+      );
+
+      setLocalMessages((prev) => prev.filter((m) => m.id !== id));
+      setLongPressedMsgId(null);
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed");
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
   const deleteSelectedMessages = async () => {
     if (!window.confirm("Delete selected messages?")) return;
 
+    const ids = selectedMessages;
+    setDeletingIds((p) => new Set([...p, ...ids]));
+
     try {
       await Promise.all(
-        selectedMessages.map((id) =>
-          axiosInstance.delete(`/messenger/messages/${id}`),
+        ids.map((id) => axiosInstance.delete(`/messenger/messages/${id}`)),
+      );
+
+      ids.forEach((id) =>
+        dispatch(
+          deleteMessageSocket({
+            conversation_id: conversationId,
+            message_id: id,
+          }),
         ),
       );
 
-      setLocalMessages((prev) =>
-        prev.filter((m) => !selectedMessages.includes(m.id)),
-      );
-
+      setLocalMessages((prev) => prev.filter((m) => !ids.includes(m.id)));
       setSelectedMessages([]);
       setSelectionMode(false);
     } catch (err) {
       console.error(err);
       alert("Delete failed");
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        ids.forEach((id) => next.delete(id));
+        return next;
+      });
     }
   };
 
-  // group by date
   const groupMessagesByDate = (msgs) => {
     const groups = [];
     let currentDate = null;
     let currentGroup = [];
 
     msgs.forEach((msg) => {
-      const msgDate = new Date(msg.created_at);
-      const dateKey = format(msgDate, "yyyy-MM-dd");
+      const key = format(new Date(msg.created_at), "yyyy-MM-dd");
 
-      if (currentDate !== dateKey) {
-        if (currentGroup.length > 0)
+      if (currentDate !== key) {
+        if (currentGroup.length)
           groups.push({ date: currentDate, messages: currentGroup });
-
-        currentDate = dateKey;
+        currentDate = key;
         currentGroup = [msg];
-      } else currentGroup.push(msg);
+      } else {
+        currentGroup.push(msg);
+      }
     });
 
-    if (currentGroup.length > 0)
+    if (currentGroup.length)
       groups.push({ date: currentDate, messages: currentGroup });
 
     return groups;
@@ -111,17 +278,19 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
   const groupedMessages = groupMessagesByDate(localMessages);
 
   const someoneIsTyping = Object.entries(typing).some(
-    ([userId, isTyping]) => isTyping && Number(userId) !== Number(myUserId),
+    ([id, v]) => v && Number(id) !== Number(myUserId),
   );
 
   return (
-    <div className="chat-messages">
-      {/* HEADER BAR (VISIBLE ONLY WHEN SELECTING) */}
+    <div className="chat-messages" ref={containerRef}>
       {selectionMode && (
         <div className="selection-header">
           <span>{selectedMessages.length} selected</span>
 
-          <button onClick={deleteSelectedMessages}>
+          <button
+            onClick={deleteSelectedMessages}
+            disabled={deletingIds.size > 0}
+          >
             <i className="ri-delete-bin-line" />
           </button>
 
@@ -152,26 +321,41 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
               {group.messages.map((msg) => {
                 const isMe = Number(msg.sender_id) === Number(myUserId);
                 const isSelected = selectedMessages.includes(msg.id);
+                const isDeleting = deletingIds.has(msg.id);
+                const showDelete =
+                  longPressedMsgId === msg.id && !selectionMode;
+
+                const isImage =
+                  msg.file_name &&
+                  /\.(jpg|jpeg|png|gif|webp)$/i.test(msg.file_name);
 
                 return (
                   <div
                     key={msg.id}
                     className={`message-row ${isMe ? "me" : "other"} ${
                       isSelected ? "selected" : ""
-                    }`}
+                    } ${isDeleting ? "deleting" : ""}`}
                     onClick={() => selectionMode && toggleSelectMessage(msg.id)}
                     onContextMenu={(e) => {
                       e.preventDefault();
                       toggleSelectMessage(msg.id);
                     }}
+                    onTouchStart={() => startLongPress(msg.id)}
+                    onTouchEnd={cancelLongPress}
+                    onTouchMove={cancelLongPress}
+                    onMouseDown={() => startLongPress(msg.id)}
+                    onMouseUp={cancelLongPress}
+                    onMouseLeave={cancelLongPress}
                   >
                     <div className={`chat-bubble ${isMe ? "me" : "other"}`}>
                       <div className="message-content">
-                        {msg.content && <div>{msg.content}</div>}
+                        {msg.content && (
+                          <div className="text-light">{msg.content}</div>
+                        )}
 
                         {msg.file_url && (
                           <div className="file-attachment">
-                            {msg.file_type?.startsWith("image/") ? (
+                            {isImage ? (
                               <img
                                 src={msg.file_url}
                                 alt="attachment"
@@ -182,7 +366,7 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
                                 href={msg.file_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="file-link"
+                                style={{ color: "#38bdf8" }}
                               >
                                 {msg.file_name || "Download file"}
                               </a>
@@ -192,9 +376,11 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
                       </div>
 
                       <div className="message-footer">
-                        <span>{format(new Date(msg.created_at), "HH:mm")}</span>
+                        <span className="text-light">
+                          {format(new Date(msg.created_at), "HH:mm")}
+                        </span>
 
-                        {isMe && (
+                        {/* {isMe && !selectionMode && (
                           <i
                             className={
                               msg.read
@@ -202,8 +388,25 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
                                 : "ri-check-line"
                             }
                           />
-                        )}
+                        )} */}
                       </div>
+
+                      {showDelete && isMe && (
+                        <button
+                          className="long-press-delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteSingleMessage(msg.id);
+                          }}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <i className="ri-loader-4-line spinning" />
+                          ) : (
+                            <i className="ri-delete-bin-line" />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                 );

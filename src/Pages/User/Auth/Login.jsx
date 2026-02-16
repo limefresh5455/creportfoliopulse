@@ -10,6 +10,7 @@ import {
 import RAGLoader from "../../../Component/Loader";
 import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
+import { getHealth } from "../../../Networking/User/APIs/Health/health";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -33,6 +34,18 @@ export const Login = () => {
     };
     if (routes[role]) navigate(routes[role]);
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchHealth = async () => {
+      try {
+        const res = await dispatch(getHealth()).unwrap();
+      } catch (error) {
+        console.error("Health API error:", error);
+      }
+    };
+
+    fetchHealth();
+  }, [dispatch]);
 
   const validateForm = () => {
     const errs = {};

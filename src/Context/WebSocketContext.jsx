@@ -11,6 +11,7 @@ import {
   addMessageSocket,
   setTypingStatus,
   setUserStatus,
+  deleteMessageSocket, // 👈 ADD THIS IMPORT
 } from "../Networking/User/Slice/chatSystemSlice";
 
 const WebSocketContext = createContext(null);
@@ -54,7 +55,7 @@ export const WebSocketProvider = ({ children }) => {
       socketRef.current = null;
     }
 
-    const wsUrl = `wss://5422-182-70-240-84.ngrok-free.app/messenger/ws?token=${token}`;
+    const wsUrl = `wss://2b08-182-70-240-84.ngrok-free.app/messenger/ws?token=${token}`;
     console.log("Connecting to WebSocket:", wsUrl);
 
     socketRef.current = new WebSocket(wsUrl);
@@ -126,16 +127,33 @@ export const WebSocketProvider = ({ children }) => {
             break;
 
           case "NEW_MESSAGE":
-            console.log("New message received:", data);
+            console.log("📩 New message received from socket:", data);
+
             dispatch(
               addMessageSocket({
                 id: data.message_id || data.id,
                 conversation_id: data.conversation_id,
                 sender_id: data.sender_id,
-                content: data.content,
-                created_at: data.created_at,
-                file_id: data.file_id,
                 sender_name: data.sender_name,
+                content: data.content || "",
+                created_at: data.created_at,
+
+                file_id: data.file_id || null,
+                file_name: data.file_name || null,
+                file_url: data.file_url || null,
+                file_type: data.file_name
+                  ? data.file_name.split(".").pop().toLowerCase()
+                  : null,
+              }),
+            );
+            break;
+
+          case "MESSAGE_DELETED":
+            console.log("Message deleted:", data);
+            dispatch(
+              deleteMessageSocket({
+                conversation_id: data.conversation_id,
+                message_id: data.message_id,
               }),
             );
             break;

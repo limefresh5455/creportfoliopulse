@@ -32,12 +32,12 @@ export const ChatWindow = ({
   const recognitionRef = useRef(null);
 
   const [category, setCategory] = useState(
-    location.state?.type || propCategory
+    location.state?.type || propCategory,
   );
+  console.log(building_id, "building_id");
 
   const [sessionId, setSessionId] = useState(null);
-  console.log(sessionId,"sessionId");
-  
+
   const [messages, setMessages] = useState([]);
 
   const [isSending, setIsSending] = useState(false);
@@ -53,32 +53,40 @@ export const ChatWindow = ({
   const isLoading = isLoadingSession || isLoadingHistory;
 
   const getContentType = (text) => {
-    if (!text || typeof text !== 'string') return "text";
+    if (!text || typeof text !== "string") return "text";
 
     const trimmedText = text.trim();
 
-
-    if (trimmedText.startsWith('http://') ||
-      trimmedText.startsWith('https://') ||
-      trimmedText.startsWith('www.')) {
+    if (
+      trimmedText.startsWith("http://") ||
+      trimmedText.startsWith("https://") ||
+      trimmedText.startsWith("www.")
+    ) {
       try {
-        const url = new URL(trimmedText.startsWith('www.') ? 'https://' + trimmedText : trimmedText);
+        const url = new URL(
+          trimmedText.startsWith("www.")
+            ? "https://" + trimmedText
+            : trimmedText,
+        );
         const path = url.pathname.toLowerCase();
 
         if (path.match(/\.(jpg|jpeg|png|webp|gif|bmp)$/)) return "image";
-        if (path.endsWith('.pdf')) return "pdf";
+        if (path.endsWith(".pdf")) return "pdf";
         return "link";
       } catch {
         return "text";
       }
     }
 
-
     return "text";
   };
 
   useEffect(() => {
-    if (category === "floor_plan" || category === "building_stack" || category === "LOI") {
+    if (
+      category === "floor_plan" ||
+      category === "building_stack" ||
+      category === "LOI"
+    ) {
       setSessionId("building-chat");
       setIsLoadingSession(false);
       return;
@@ -96,41 +104,44 @@ export const ChatWindow = ({
       return;
     }
 
-   const fetchLastSession = async () => {
-  setIsLoadingSession(true);
-  try {
-    const res = await dispatch(
-      get_Session_List_Specific({
-        category,
-        buildingId: building_id,
-      })
-    ).unwrap();
+    const fetchLastSession = async () => {
+      setIsLoadingSession(true);
+      try {
+        const res = await dispatch(
+          get_Session_List_Specific({
+            category,
+            buildingId: building_id,
+          }),
+        ).unwrap();
 
-    const filtered = res.filter((s) => s.category === category);
+        const filtered = res.filter((s) => s.category === category);
 
-    if (filtered.length > 0) {
-      const latestSession = filtered.reduce((latest, current) => {
-        return new Date(current.created_at) > new Date(latest.created_at)
-          ? current
-          : latest;
-      });
+        if (filtered.length > 0) {
+          const latestSession = filtered.reduce((latest, current) => {
+            return new Date(current.created_at) > new Date(latest.created_at)
+              ? current
+              : latest;
+          });
 
-      setSessionId(latestSession.session_id);
-    } else {
-      setSessionId(uuidv4());
-      setMessages([]);
-    }
-  } finally {
-    setIsLoadingSession(false);
-  }
-};
-
+          setSessionId(latestSession.session_id);
+        } else {
+          setSessionId(uuidv4());
+          setMessages([]);
+        }
+      } finally {
+        setIsLoadingSession(false);
+      }
+    };
 
     fetchLastSession();
   }, [category, dispatch]);
 
   useEffect(() => {
-    if (category === "floor_plan" || category === "building_stack" || category === "LOI") {
+    if (
+      category === "floor_plan" ||
+      category === "building_stack" ||
+      category === "LOI"
+    ) {
       setMessages([]);
       setIsLoadingHistory(false);
       return;
@@ -152,7 +163,7 @@ export const ChatWindow = ({
       setIsLoadingHistory(true);
       try {
         const res = await dispatch(
-          get_Chat_History({ session_id: sessionId, building_id })
+          get_Chat_History({ session_id: sessionId, building_id }),
         ).unwrap();
         if (Array.isArray(res) && res.length > 0) {
           const formatted = res.flatMap((item) => [
@@ -254,7 +265,11 @@ export const ChatWindow = ({
 
       let response;
 
-      if (category === "floor_plan" || category === "building_stack" || category === "LOI") {
+      if (
+        category === "floor_plan" ||
+        category === "building_stack" ||
+        category === "LOI"
+      ) {
         const payload = {
           question: userMessage.message,
           building_id,
@@ -289,7 +304,6 @@ export const ChatWindow = ({
       }
 
       if (response?.answer) {
-
         const contentType = getContentType(response.answer);
 
         const adminMessage = {
@@ -328,7 +342,6 @@ export const ChatWindow = ({
       },
     });
   };
-
 
   return (
     <div className="container-fluid py-3" style={{ height: "100vh" }}>
@@ -369,18 +382,12 @@ export const ChatWindow = ({
                 {category === "LOI" && (
                   <button
                     className="btn btn-outline-secondary btn-sm"
-                    onClick={()=>handleNavigation()}
+                    onClick={() => handleNavigation()}
                   >
-                    <i
-                      className="bi bi-upload"
-                      style={{ fontSize: 14 }}
-                    />
+                    <i className="bi bi-upload" style={{ fontSize: 14 }} />
 
-                    <span className="d-none d-md-inline ms-1">
-                      Upload Doc
-                    </span>
+                    <span className="d-none d-md-inline ms-1">Upload Doc</span>
                   </button>
-
                 )}
               </div>
             </div>
@@ -404,22 +411,25 @@ export const ChatWindow = ({
                     {messages.map((msg, i) => (
                       <div
                         key={i}
-                        className={`mb-2 small ${msg.sender === "Admin" ? "text-start" : "text-end"
-                          }`}
+                        className={`mb-2 small ${
+                          msg.sender === "Admin" ? "text-start" : "text-end"
+                        }`}
                       >
                         <div
-                          className={`d-inline-block px-3 py-2 position-relative responsive-box ${msg.sender === "Admin"
-                            ? ""
-                            : "bg-secondary text-light"
-                            }`}
+                          className={`d-inline-block px-3 py-2 position-relative responsive-box ${
+                            msg.sender === "Admin"
+                              ? ""
+                              : "bg-secondary text-light"
+                          }`}
                         >
                           {msg.sender === "Admin" ? (
                             <>
                               <i
-                                className={`bi ${speakingIndex === i
-                                  ? "bi-volume-up-fill"
-                                  : "bi-volume-mute"
-                                  } ms-2`}
+                                className={`bi ${
+                                  speakingIndex === i
+                                    ? "bi-volume-up-fill"
+                                    : "bi-volume-mute"
+                                } ms-2`}
                                 style={{
                                   cursor: "pointer",
                                   fontSize: "1rem",
@@ -540,14 +550,16 @@ export const ChatWindow = ({
                 </button>
               ) : (
                 <button
-                  className={`btn rounded-circle ${isRecording ? "btn-danger" : "btn-outline-secondary"
-                    }`}
+                  className={`btn rounded-circle ${
+                    isRecording ? "btn-danger" : "btn-outline-secondary"
+                  }`}
                   onClick={startRecording}
                   disabled={isSending || isLoading || !sessionId}
                 >
                   <i
-                    className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                      }`}
+                    className={`bi ${
+                      isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
+                    }`}
                   ></i>
                 </button>
               )}

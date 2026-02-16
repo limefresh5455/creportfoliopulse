@@ -19,6 +19,8 @@ const DealForm = () => {
     broker_of_record: "",
     landlord_lead_of_record: "",
     current_lease_expiration: "",
+    space_inquiry_date: "",
+    space_inquiry_notes: "",
   });
 
   const baseStages = [
@@ -102,11 +104,6 @@ const DealForm = () => {
       return;
     }
 
-    if (!form.building_address_interest.trim()) {
-      toast.error("Building Address of Interest is required");
-      return;
-    }
-
     setSaving(true);
 
     const payload = {
@@ -133,7 +130,6 @@ const DealForm = () => {
       const resultAction = await dispatch(DealFormApi(payload));
 
       if (DealFormApi.fulfilled.match(resultAction)) {
-
         navigate("/deal-list/");
         setForm({
           tenant_name: "",
@@ -148,7 +144,7 @@ const DealForm = () => {
         setStages(baseStages.map(initializeStage));
       } else if (DealFormApi.rejected.match(resultAction)) {
         const errorMessage = resultAction.payload || "Failed to save deal";
-        toast.error(errorMessage);
+        // toast.error(errorMessage);
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
@@ -193,22 +189,22 @@ const DealForm = () => {
           </div>
         </div>
       </div>
-     
-      <div className="container-fluid m-4">
-         <div className="my-4 d-flex justify-content-md-start">
-        <div
-          className="bg-dark text-white py-2 d-flex align-items-center justify-content-center gap-2"
-          onClick={() => navigate(-1)}
-          style={{
-            cursor: "pointer",
-            width: "110px",
-            borderRadius: 10,
-          }}
-        >
-          <FaArrowLeft size={16} />
-          <span>Back</span>
+
+      <div className="container-fluid">
+        <div className="my-4 d-flex justify-content-md-start">
+          <div
+            className="bg-dark text-white py-2 d-flex align-items-center justify-content-center gap-2"
+            onClick={() => navigate(-1)}
+            style={{
+              cursor: "pointer",
+              width: "110px",
+              borderRadius: 10,
+            }}
+          >
+            <FaArrowLeft size={16} />
+            <span>Back</span>
+          </div>
         </div>
-      </div>
         {loading && (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-25 z-3">
             <div className="spinner-border text-primary" role="status">
@@ -240,7 +236,7 @@ const DealForm = () => {
                 "Building Address of Interest",
                 "building_address_interest",
                 "text",
-                true,
+                false,
               ],
               [
                 "Current Building Address",
@@ -281,11 +277,39 @@ const DealForm = () => {
                       setForm({ ...form, [key]: e.target.value });
                     }
                   }}
-                  required={required}
+                  required={false}
                   disabled={saving}
                 />
               </div>
             ))}
+          </div>
+
+          <div className="row g-3 my-2">
+            <div className="col-md-6 col-12">
+              <label className="fw-semibold">Space Inquiry Date</label>
+              <input
+                type="date"
+                className="form-control"
+                value={formatDateForInput(form.space_inquiry_date)}
+                onChange={(e) =>
+                  handleDateChange("space_inquiry_date", e.target.value)
+                }
+                disabled={saving}
+              />
+            </div>
+
+            <div className="col-md-6 col-12">
+              <label className="fw-semibold">Space Inquiry Notes</label>
+              <input
+                className="form-control"
+                placeholder="Enter inquiry notes..."
+                value={form.space_inquiry_notes}
+                onChange={(e) =>
+                  setForm({ ...form, space_inquiry_notes: e.target.value })
+                }
+                disabled={saving}
+              />
+            </div>
           </div>
 
           <h5 className="fw-bold mt-4 pb-2 border-bottom">
@@ -308,7 +332,6 @@ const DealForm = () => {
                 </div>
                 <div className="col-md-3 col-lg-3 col-12">
                   <strong>{item.stage_name}</strong>
-             
                 </div>
                 <div className="col-md-2 col-lg-2 col-12">
                   <input
@@ -325,7 +348,7 @@ const DealForm = () => {
                         "completed_at",
                         e.target.value
                           ? new Date(e.target.value).toISOString()
-                          : null
+                          : null,
                       )
                     }
                     disabled={saving || !item.is_completed}
@@ -343,7 +366,9 @@ const DealForm = () => {
                     disabled={saving}
                   />
                 </div>
-                <div className="col-md-2 col-lg-1 text-primary text-start text-md-end pb-2 pb-md-0">Notes</div>
+                <div className="col-md-2 col-lg-1 text-primary text-start text-md-end pb-2 pb-md-0">
+                  Notes
+                </div>
               </div>
             </div>
           ))}

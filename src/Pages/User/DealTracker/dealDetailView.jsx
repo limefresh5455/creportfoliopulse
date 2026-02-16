@@ -4,13 +4,12 @@ import {
   getDealTracker,
   updateDealTracker,
 } from "../../../Networking/User/APIs/DealTracker/dealTrackerApi";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const DealDetailView = () => {
   const { dealId } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [deal, setDeal] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,6 +25,8 @@ const DealDetailView = () => {
     broker_of_record: "",
     landlord_lead_of_record: "",
     current_lease_expiration: "",
+    space_inquiry_date: "",
+    space_inquiry_notes: "",
   });
 
   const [stages, setStages] = useState([]);
@@ -53,6 +54,10 @@ const DealDetailView = () => {
         current_lease_expiration: result.current_lease_expiration
           ? result.current_lease_expiration.substring(0, 10)
           : "",
+        space_inquiry_date: result.space_inquiry_date
+          ? result.space_inquiry_date.substring(0, 10)
+          : "",
+        space_inquiry_notes: result.space_inquiry_notes || "",
       });
 
       if (result.stages && Array.isArray(result.stages)) {
@@ -67,7 +72,7 @@ const DealDetailView = () => {
       }
     } catch (err) {
       console.error("Error fetching deal details:", err);
-      toast.error("Failed to load deal details");
+      // toast.error("Failed to load deal details");
     } finally {
       setLoading(false);
     }
@@ -115,11 +120,6 @@ const DealDetailView = () => {
       return;
     }
 
-    if (!form.building_address_interest.trim()) {
-      toast.error("Building Address of Interest is required");
-      return;
-    }
-
     setSaving(true);
 
     const payload = {
@@ -164,10 +164,13 @@ const DealDetailView = () => {
         current_lease_expiration: result.current_lease_expiration
           ? result.current_lease_expiration.substring(0, 10)
           : "",
+        space_inquiry_date: result.space_inquiry_date
+          ? result.space_inquiry_date.substring(0, 10)
+          : "",
+        space_inquiry_notes: result.space_inquiry_notes || "",
       });
     } catch (error) {
       console.error("Error updating deal:", error);
-      toast.error(error?.message || "Failed to update deal");
     } finally {
       setSaving(false);
     }
@@ -422,6 +425,49 @@ const DealDetailView = () => {
                 </div>
               </div>
             )}
+          </div>
+          <div className="row g-3 my-2">
+            <div className="col-md-6 col-12">
+              <label className="fw-semibold">Space Inquiry Date</label>
+              {isEditMode ? (
+                <input
+                  type="date"
+                  className="form-control"
+                  name="space_inquiry_date"
+                  value={form.space_inquiry_date || ""}
+                  onChange={handleInputChange}
+                  disabled={saving}
+                />
+              ) : (
+                <div className="form-control-plaintext">
+                  {form.space_inquiry_date ? (
+                    formatDate(form.space_inquiry_date)
+                  ) : (
+                    <span className="text-muted">Not specified</span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="col-md-6 col-12">
+              <label className="fw-semibold">Space Inquiry Notes</label>
+              {isEditMode ? (
+                <textarea
+                  className="form-control"
+                  rows="2"
+                  name="space_inquiry_notes"
+                  value={form.space_inquiry_notes || ""}
+                  onChange={handleInputChange}
+                  disabled={saving}
+                />
+              ) : (
+                <div className="form-control-plaintext">
+                  {form.space_inquiry_notes || (
+                    <span className="text-muted">No notes</span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

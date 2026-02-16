@@ -198,3 +198,18 @@ export const deleteMessageApi = async (messageId) => {
   const res = await axiosInstance.delete(`/messenger/messages/${messageId}`);
   return res.data;
 };
+
+export const leaveGroupApi = createAsyncThunk(
+  "chat/leaveGroup",
+  async (conversationId, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(
+        `/messenger/conversations/${conversationId}/leave`,
+      );
+
+      return { conversationId, data: res.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);

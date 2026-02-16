@@ -37,9 +37,15 @@ export const UserBuildingInfolist = () => {
   }, [filteredBuildings]);
 
   const goToChat = (buildingId, category) => {
-    navigate("/building-chat", {
-      state: { buildingId, category },
-    });
+    if (category === "tenant_info") {
+      navigate("/tenant-information-chat", {
+        state: { buildingId, category },
+      });
+    } else {
+      navigate("/building-chat", {
+        state: { buildingId, category },
+      });
+    }
   };
 
   return (
@@ -99,7 +105,7 @@ export const UserBuildingInfolist = () => {
                       </div>
                     </div>
 
-                    <div className="d-flex gap-2 flex-wrap">
+                    <div className="d-flex gap-2 flex-wrap align-items-center justify-content-end">
                       <button
                         className="btn btn-dark btn-sm"
                         onClick={() => goToChat(building.id, "floor_plan")}
@@ -119,6 +125,12 @@ export const UserBuildingInfolist = () => {
                         onClick={() => goToChat(building.id, "building_info")}
                       >
                         Building Info
+                      </button>
+                      <button
+                        className="btn btn-dark btn-sm"
+                        onClick={() => goToChat(building.id, "tenant_info")}
+                      >
+                        Tenant Info
                       </button>
                     </div>
                   </div>
