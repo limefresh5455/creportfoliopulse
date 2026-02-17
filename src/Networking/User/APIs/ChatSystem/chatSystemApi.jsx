@@ -15,10 +15,10 @@ export const fetchConversations = createAsyncThunk(
 
 export const fetchMessages = createAsyncThunk(
   "chat/fetchMessages",
-  async (conversationId, { rejectWithValue }) => {
+  async ({ conversationId, page = 1 }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/messenger/conversations/messages/${conversationId}`,
+        `/messenger/conversations/messages/${conversationId}?page=${page}`,
       );
       return res.data;
     } catch (err) {
@@ -208,6 +208,20 @@ export const leaveGroupApi = createAsyncThunk(
       );
 
       return { conversationId, data: res.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);
+
+export const deleteConversationApi = createAsyncThunk(
+  "chat/deleteConversation",
+  async (conversationId, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.delete(
+        `/messenger/conversations/${conversationId}`,
+      );
+      return conversationId;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }

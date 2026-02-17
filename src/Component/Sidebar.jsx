@@ -289,6 +289,24 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           {openMenu === "dataCategories" && (
             <>
               <NavItem
+                path="/tenants-market-upload"
+                icon="bi-building-check"
+                label="Tenants in the Market"
+                isActivePath={isActive("/tenants-market-upload")}
+              />
+              <NavItem
+                path="/comps-upload"
+                icon="bi-bar-chart-line-fill"
+                label="Comps"
+                isActivePath={isActive("/comps-upload")}
+              />
+              <NavItem
+                path="/tenant-info-building-list"
+                icon="bi-card-list"
+                label="Tenant Information"
+                isActivePath={isActive("/tenant-info-building-list")}
+              />
+              <NavItem
                 path="/third-party-upload"
                 icon="bi-people"
                 label="Third Party Contact Info"
@@ -300,12 +318,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 label="Employee Contact Info"
                 isActivePath={isActive("/employee-contact-upload")}
               />
-              <NavItem
-                path="/comps-upload"
-                icon="bi-bar-chart-line-fill"
-                label="Comps"
-                isActivePath={isActive("/comps-upload")}
-              />
+
               <NavItem
                 path="/admin-fire-safety-building-mechanicals-list"
                 icon="bi-shield-check"
@@ -321,18 +334,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
                 label="Comparative Buildings Data"
                 isActivePath={isActive("/comparative-building-list")}
               />
-              <NavItem
-                path="/tenent-info-building-list"
-                icon="bi-card-list"
-                label="Tenant Information"
-                isActivePath={isActive("/tenent-info-building-list")}
-              />
-              <NavItem
-                path="/tenants-market-upload"
-                icon="bi-building-check"
-                label="Tenants in the Market"
-                isActivePath={isActive("/tenants-market-upload")}
-              />
+
               <NavItem
                 path="/building-info-list"
                 icon="bi-building"
@@ -437,13 +439,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/cre-news")}
           enabled={true}
         />
-        <NavItem
+        {/* <NavItem
           path="/email-drafting"
           icon="bi-envelope-open"
           label="Email Drafting"
           isActivePath={isActive("/email-drafting")}
           enabled={profileData.email_drafting_enabled}
-        />
+        /> */}
 
         {profileData.gemini_chat_enabled && (
           <NavItem
@@ -515,13 +517,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/yardi")}
           enabled={profileData.yardi_enabled}
         />
-        <NavItem
+        {/* <NavItem
           path="/messages"
           icon="bi-journal-text"
           label="Messages"
           isActivePath={isActive("/messages")}
           enabled={profileData.gemini_chat_enabled}
-        />
+        /> */}
 
         <NavItem
           path="/project-management"
@@ -537,6 +539,27 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
 
         {openMenu === "generalInfo" && dataCategoriesEnabled && (
           <ul className="nav flex-column mt-1">
+            <NavItem
+              path="/tenant-market"
+              icon="bi-people-fill"
+              label="Tenants in the Market"
+              isActivePath={isActive("/tenant-market")}
+              enabled={profileData.tenants_in_the_market_enabled}
+            />
+            <NavItem
+              path="/comps-chat"
+              icon="bi-bar-chart-line-fill"
+              label="Comps"
+              isActivePath={isActive("/comps-chat")}
+              enabled={profileData.comps_enabled}
+            />
+            <NavItem
+              path="/tenent-info-user-building-list"
+              icon="bi-chat-left-text"
+              label="Tenant Information"
+              isActivePath={isActive("/tenent-info-user-building-list")}
+              enabled={profileData.tenant_information_enabled}
+            />
             <NavItem
               path="/third-party-chat"
               icon="bi-telephone-fill"
@@ -565,27 +588,7 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               isActivePath={isActive("/comparative-user-building-list")}
               enabled={profileData.comparative_building_data_enabled}
             />
-            <NavItem
-              path="/tenent-info-user-building-list"
-              icon="bi-chat-left-text"
-              label="Tenant Information"
-              isActivePath={isActive("/tenent-info-user-building-list")}
-              enabled={profileData.tenant_information_enabled}
-            />
-            <NavItem
-              path="/tenant-market"
-              icon="bi-people-fill"
-              label="Tenants in the Market"
-              isActivePath={isActive("/tenant-market")}
-              enabled={profileData.tenants_in_the_market_enabled}
-            />
-            <NavItem
-              path="/comps-chat"
-              icon="bi-bar-chart-line-fill"
-              label="Comps"
-              isActivePath={isActive("/comps-chat")}
-              enabled={profileData.comps_enabled}
-            />
+
             <NavItem
               path="/user-fire-safety-building-mechanicals-list"
               icon="bi-shield-check"

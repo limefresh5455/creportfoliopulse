@@ -4,10 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { getAdminlistApi } from "../../../Networking/SuperAdmin/AdminSuperApi";
 import { createGroupApi } from "../../../Networking/User/APIs/ChatSystem/chatSystemApi";
 
-/* ─────────────────────────────────────────────
-   Styles — matches ChatList / UserListScreen
-   dark WhatsApp palette
-───────────────────────────────────────────── */
 const S = {
   root: {
     display: "flex",
@@ -21,7 +17,6 @@ const S = {
     overflow: "hidden",
   },
 
-  /* ── HEADER ── */
   header: {
     display: "flex",
     alignItems: "center",
@@ -66,7 +61,6 @@ const S = {
     flexShrink: 0,
   },
 
-  /* ── INPUTS ── */
   inputSection: {
     padding: "10px 16px 8px",
     background: "#202C33",
@@ -103,7 +97,6 @@ const S = {
     paddingLeft: 2,
   },
 
-  /* ── SELECTED CHIPS ── */
   chipsRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -145,7 +138,6 @@ const S = {
     paddingLeft: 2,
   },
 
-  /* ── SECTION LABEL ── */
   sectionLabel: {
     padding: "10px 16px 4px",
     fontSize: 12,
@@ -156,14 +148,12 @@ const S = {
     flexShrink: 0,
   },
 
-  /* ── LIST ── */
   list: {
     flex: 1,
     overflowY: "auto",
     overflowX: "hidden",
   },
 
-  /* ── ITEM ── */
   item: (selected) => ({
     display: "flex",
     alignItems: "center",
@@ -179,7 +169,6 @@ const S = {
     color: "#E9EDEF",
   }),
 
-  /* avatar */
   avatar: (color) => ({
     width: 50,
     height: 50,
@@ -196,7 +185,6 @@ const S = {
     position: "relative",
   }),
 
-  /* checkbox circle */
   checkCircle: (checked) => ({
     width: 24,
     height: 24,
@@ -229,7 +217,6 @@ const S = {
     marginTop: 1,
   },
 
-  /* skeleton */
   skelItem: {
     display: "flex",
     alignItems: "center",
@@ -254,7 +241,6 @@ const S = {
     animation: "pulse 1.5s infinite",
   }),
 
-  /* empty */
   empty: {
     display: "flex",
     flexDirection: "column",
@@ -268,7 +254,6 @@ const S = {
   emptyIcon: { fontSize: 52, opacity: 0.35 },
   emptyText: { fontSize: 15 },
 
-  /* ── FOOTER ── */
   footer: {
     background: "#202C33",
     padding: "12px 16px",
@@ -306,7 +291,6 @@ const S = {
   },
 };
 
-/* ── SVG Icons ── */
 const BackIcon = () => (
   <svg
     width="22"
@@ -372,7 +356,6 @@ const SpinnerIcon = () => (
   </svg>
 );
 
-/* ── Avatar colour palette ── */
 const AVATAR_COLORS = [
   "#1E6B5E",
   "#2C6E8A",
@@ -396,9 +379,6 @@ const getUserId = (user, index) =>
       index,
   );
 
-/* ─────────────────────────────────────────────
-   COMPONENT
-───────────────────────────────────────────── */
 export const CreateGroupScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -423,7 +403,6 @@ export const CreateGroupScreen = () => {
     })();
   }, []);
 
-  /* stable id → user map */
   const userMap = useMemo(() => {
     const map = new Map();
     users.forEach((u, i) => map.set(getUserId(u, i), u));
@@ -478,7 +457,6 @@ export const CreateGroupScreen = () => {
     }
   };
 
-  /* hint below button */
   const hint = () => {
     if (selectedUserIds.size === 0)
       return (
@@ -511,7 +489,6 @@ export const CreateGroupScreen = () => {
       `}</style>
 
       <div style={S.root}>
-        {/* ── HEADER ── */}
         <div style={S.header}>
           <button
             className="back-btn"
@@ -529,9 +506,7 @@ export const CreateGroupScreen = () => {
           )}
         </div>
 
-        {/* ── INPUT SECTION ── */}
         <div style={S.inputSection}>
-          {/* Group name */}
           <div>
             <div style={S.inputLabel}>Group name</div>
             <div style={S.inputWrap}>
@@ -546,7 +521,6 @@ export const CreateGroupScreen = () => {
             </div>
           </div>
 
-          {/* Search */}
           <div style={S.inputWrap}>
             <SearchIcon />
             <input
@@ -558,7 +532,6 @@ export const CreateGroupScreen = () => {
           </div>
         </div>
 
-        {/* ── SELECTED CHIPS ── */}
         {selectedUserIds.size > 0 && (
           <div style={S.chipsRow}>
             {[...selectedUserIds].map((userId) => {
@@ -584,16 +557,13 @@ export const CreateGroupScreen = () => {
           </div>
         )}
 
-        {/* ── SECTION LABEL ── */}
         {!fetching && filteredUsers.length > 0 && (
           <div style={S.sectionLabel}>
             Members &nbsp;·&nbsp; {filteredUsers.length}
           </div>
         )}
 
-        {/* ── USER LIST ── */}
         <div style={S.list}>
-          {/* Skeletons */}
           {fetching &&
             Array.from({ length: 7 }).map((_, i) => (
               <div key={i} style={S.skelItem}>
@@ -605,7 +575,6 @@ export const CreateGroupScreen = () => {
               </div>
             ))}
 
-          {/* Empty */}
           {!fetching && filteredUsers.length === 0 && (
             <div style={S.empty}>
               <span style={S.emptyIcon}>🔍</span>
@@ -615,7 +584,6 @@ export const CreateGroupScreen = () => {
             </div>
           )}
 
-          {/* Rows */}
           {!fetching &&
             filteredUsers.map((user, index) => {
               const userId = getUserId(user, index);
@@ -631,17 +599,14 @@ export const CreateGroupScreen = () => {
                   }}
                   onClick={() => toggleUser(userId)}
                 >
-                  {/* Custom checkbox */}
                   <div style={S.checkCircle(selected)}>
                     {selected && <CheckIcon />}
                   </div>
 
-                  {/* Avatar */}
                   <div style={S.avatar(avatarColor(userId))}>
                     {user.name?.[0]?.toUpperCase() || "?"}
                   </div>
 
-                  {/* Text */}
                   <div style={S.textBlock}>
                     <div style={S.name}>{user.name}</div>
                     {user.email && <div style={S.email}>{user.email}</div>}
@@ -651,7 +616,6 @@ export const CreateGroupScreen = () => {
             })}
         </div>
 
-        {/* ── FOOTER ── */}
         <div style={S.footer}>
           <button
             style={S.createBtn(!canCreate)}

@@ -122,24 +122,49 @@ const DealDetailView = () => {
 
     setSaving(true);
 
-    const payload = {
-      ...form,
-      stages: stages.map((stage) => {
-        const stageData = {
-          id: stage.id,
-          stage_name: stage.stage_name,
-          order_index: stage.order_index,
-          is_completed: stage.is_completed,
-          notes: stage.notes || "",
-        };
-
-        if (stage.is_completed && stage.completed_at) {
-          const date = new Date(stage.completed_at);
-          stageData.completed_at = date.toISOString();
+    // Build form payload: include only fields with non‑empty strings
+    const formPayload = {};
+    Object.entries(form).forEach(([key, value]) => {
+      if (typeof value === "string" && value.trim() !== "") {
+        // Convert date fields to ISO string if they are in YYYY-MM-DD format
+        if (
+          key === "current_lease_expiration" ||
+          key === "space_inquiry_date"
+        ) {
+          // value is YYYY-MM-DD, create ISO date at UTC midnight
+          formPayload[key] = new Date(value + "T00:00:00.000Z").toISOString();
+        } else {
+          formPayload[key] = value.trim();
         }
+      }
+    });
 
-        return stageData;
-      }),
+    // Build stages payload
+    const stagesPayload = stages.map((stage) => {
+      const stageObj = {
+        id: stage.id, // required to identify the stage
+        stage_name: stage.stage_name,
+        order_index: stage.order_index,
+        is_completed: stage.is_completed, // always include (boolean)
+      };
+
+      if (stage.is_completed && stage.completed_at) {
+        // Convert date to ISO string
+        stageObj.completed_at = new Date(
+          stage.completed_at + "T00:00:00.000Z",
+        ).toISOString();
+      }
+
+      if (stage.notes && stage.notes.trim() !== "") {
+        stageObj.notes = stage.notes.trim();
+      }
+
+      return stageObj;
+    });
+
+    const payload = {
+      ...formPayload,
+      stages: stagesPayload,
     };
 
     try {
@@ -153,6 +178,7 @@ const DealDetailView = () => {
       setDeal(result);
       setIsEditMode(false);
 
+      // Refresh form with the updated data
       setForm({
         tenant_name: result.tenant_name || "",
         building_address_interest: result.building_address_interest || "",
@@ -171,6 +197,7 @@ const DealDetailView = () => {
       });
     } catch (error) {
       console.error("Error updating deal:", error);
+      toast.error("Failed to update deal");
     } finally {
       setSaving(false);
     }
@@ -339,13 +366,13 @@ const DealDetailView = () => {
                 label: "Tenant Name",
                 name: "tenant_name",
                 type: "text",
-                required: true,
+                required: false,
               },
               {
                 label: "Building of Interest",
                 name: "building_address_interest",
                 type: "text",
-                required: true,
+                required: false,
               },
               {
                 label: "Current Building Address",

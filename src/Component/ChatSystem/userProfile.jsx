@@ -336,8 +336,6 @@ export const UserProfile = ({
           </div>
         </div>
       )}
-
-      {/* Delete file confirmation modal */}
       {showDeleteFileModal && fileToDelete && (
         <div
           className="modal-overlay"
@@ -382,7 +380,6 @@ export const UserProfile = ({
         </div>
       )}
 
-      {/* Exit group confirmation modal */}
       {showExitConfirm && (
         <div className="wa-modal-overlay">
           <div className="wa-modal">

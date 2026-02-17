@@ -25,8 +25,6 @@ const normalizeSocketMessage = (data) => {
   };
 };
 
-/* ---------------- COMPONENT ---------------- */
-
 export const ChatMessages = ({ messages, myUserId, conversationId }) => {
   const dispatch = useDispatch();
   const bottomRef = useRef(null);
@@ -35,23 +33,17 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
   const longPressTimerRef = useRef(null);
   const containerRef = useRef(null);
 
-  /* ---------- STATE ---------- */
-
   const [localMessages, setLocalMessages] = useState([]);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [selectionMode, setSelectionMode] = useState(false);
   const [deletingIds, setDeletingIds] = useState(new Set());
   const [longPressedMsgId, setLongPressedMsgId] = useState(null);
 
-  /* ---------- FETCH ON CONVERSATION CHANGE ---------- */
-
   useEffect(() => {
     if (conversationId) {
       dispatch(fetchMessages(conversationId));
     }
   }, [conversationId, dispatch]);
-
-  /* ---------- RESET STATE ON CONVERSATION SWITCH ---------- */
 
   useEffect(() => {
     setLocalMessages([]);
@@ -68,8 +60,6 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
     prevMsgCount.current = 0;
   }, [conversationId]);
 
-  /* ---------- MERGE REDUX MESSAGES ---------- */
-
   useEffect(() => {
     setLocalMessages((prev) => {
       const existingIds = new Set(prev.map((m) => m.id));
@@ -84,8 +74,6 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
       );
     });
   }, [messages]);
-
-  /* ---------- SOCKET REALTIME ---------- */
 
   useEffect(() => {
     if (!window.chatSocket) return;

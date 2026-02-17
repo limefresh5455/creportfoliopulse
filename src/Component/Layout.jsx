@@ -1,11 +1,79 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { EmailDraftingProvider } from "../Context/EmailDraftingContext";
+import { EmailDraftingModal } from "../Component/EmailDraftingModal";
+import { useEmailDrafting } from "../Context/EmailDraftingContext";
+
+const GlobalEmailDraftingButton = () => {
+  const { openEmailDraftingModal } = useEmailDrafting();
+  return (
+    <button
+      onClick={openEmailDraftingModal}
+      style={{
+        position: "fixed",
+        bottom: "85px",
+        right: "20px",
+        zIndex: 1050,
+        width: "45px",
+        height: "45px",
+        borderRadius: "50%",
+        backgroundColor: "#057405",
+        color: "white",
+        border: "none",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "20px",
+      }}
+      title="Open Email Drafting"
+    >
+      <i className="bi bi-envelope-paper" />
+    </button>
+  );
+};
 
 export const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(true);
   const location = useLocation();
   const [isChatPage, setIsChatPage] = useState(false);
+
+  const emailDraftingButtonRoutes = useMemo(
+    () => [
+      "/tenant-information-chat",
+      "/tenant-info-upload",
+      "/tenent-info-user-building-list",
+      "/tenant-info-building-list",
+
+      "/building-chat",
+      "/user-building-info-list",
+      "/comparative-building-chat",
+      "/comparative-user-building-list",
+      "/comparative-building-upload",
+      "/building-info-list",
+      "/building-info-upload",
+
+      "/comps-chat",
+      "/comps-upload",
+
+      "/tenant-market",
+      "/tenants-market-upload",
+
+      "/third-party-chat",
+      "/third-party-upload",
+    ],
+    [],
+  );
+
+  const showEmailButton = useMemo(
+    () =>
+      emailDraftingButtonRoutes.some((path) =>
+        location.pathname.startsWith(path),
+      ),
+    [location.pathname, emailDraftingButtonRoutes],
+  );
 
   useEffect(() => {
     const chatRoutes = [
@@ -27,7 +95,7 @@ export const DashboardLayout = () => {
       "/gemini-chat",
       "/portfolio-forum",
       "/dashboard",
-      "/email-drafting",
+      // "/email-drafting",
       "/notes",
       "/ai-lease-abstract-upload",
       "/information-collaboration",
@@ -76,7 +144,7 @@ export const DashboardLayout = () => {
       "/comps-upload",
       "/fire-safety-building-mechanicals",
       "/comparative-building-list",
-      "/tenent-info-building-list",
+      "/tenant-info-building-list",
       "/tenants-market-upload",
       "/building-info-list",
       "/Select_Building_Category",
@@ -96,21 +164,26 @@ export const DashboardLayout = () => {
   }, [location]);
 
   return (
-    <div
-      className={`main-wrapper ${collapsed ? "" : "open"} ${
-        isChatPage ? "chat-active" : ""
-      }`}
-      style={{ height: "100dvh" }}
-    >
-      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-
+    <EmailDraftingProvider>
       <div
-        className={`flex-grow-1 content-wrapper ${
-          isChatPage ? "chat-body" : ""
+        className={`main-wrapper ${collapsed ? "" : "open"} ${
+          isChatPage ? "chat-active" : ""
         }`}
+        style={{ height: "100dvh" }}
       >
-        <Outlet />
+        <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+
+        <div
+          className={`flex-grow-1 content-wrapper ${
+            isChatPage ? "chat-body" : ""
+          }`}
+        >
+          <Outlet />
+        </div>
+
+        {showEmailButton && <GlobalEmailDraftingButton />}
+        <EmailDraftingModal />
       </div>
-    </div>
+    </EmailDraftingProvider>
   );
 };

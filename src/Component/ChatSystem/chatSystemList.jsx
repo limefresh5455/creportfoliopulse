@@ -2,169 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
+  deleteConversationApi,
   fetchConversations,
   fetchMessages,
 } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
 import { setActiveConversation } from "../../Networking/User/Slice/chatSystemSlice";
-
-const S = {
-  iconBtn: {
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    color: "#AEBAC1",
-    padding: 8,
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "background 0.15s",
-    fontSize: 20,
-  },
-
-  list: {
-    flex: 1,
-    overflowY: "auto",
-    overflowX: "hidden",
-  },
-
-  item: (selected) => ({
-    display: "flex",
-    alignItems: "center",
-    padding: "10px 16px",
-    gap: 12,
-    cursor: "pointer",
-    background: selected ? "#2A3942" : "transparent",
-    borderBottom: "1px solid #1F2C34",
-    transition: "background 0.15s",
-    userSelect: "none",
-    WebkitUserSelect: "none",
-    position: "relative",
-  }),
-
-  avatar: (isGroup) => ({
-    width: 50,
-    height: 50,
-    minWidth: 50,
-    borderRadius: "50%",
-    background: isGroup ? "#00735C" : "#2C3E50",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: isGroup ? 22 : 20,
-    fontWeight: 600,
-    color: "#fff",
-    flexShrink: 0,
-    position: "relative",
-  }),
-  onlineDot: {
-    position: "absolute",
-    bottom: 2,
-    right: 2,
-    width: 12,
-    height: 12,
-    borderRadius: "50%",
-    background: "#00A884",
-    border: "2px solid #111B21",
-  },
-
-  selectionRing: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: "50%",
-    border: "2.5px solid #00A884",
-    background: "rgba(0,168,132,0.15)",
-  },
-  checkmark: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: "50%",
-    background: "#00A884",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 18,
-    color: "#fff",
-  },
-
-  textBlock: {
-    flex: 1,
-    minWidth: 0,
-  },
-  topRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    marginBottom: 3,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 500,
-    color: "#E9EDEF",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    maxWidth: "70%",
-  },
-  timestamp: (hasUnread) => ({
-    fontSize: 12,
-    color: hasUnread ? "#00A884" : "#8696A0",
-    flexShrink: 0,
-  }),
-  bottomRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  preview: {
-    fontSize: 14,
-    color: "#8696A0",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    flex: 1,
-  },
-
-  badge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    background: "#00A884",
-    color: "#fff",
-    fontSize: 11,
-    fontWeight: 700,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "0 5px",
-    marginLeft: 6,
-    flexShrink: 0,
-  },
-
-  skelItem: {
-    display: "flex",
-    alignItems: "center",
-    padding: "10px 16px",
-    gap: 12,
-    borderBottom: "1px solid #1F2C34",
-  },
-  skelAvatar: {
-    width: 50,
-    height: 50,
-    minWidth: 50,
-    borderRadius: "50%",
-    background: "#1F2C34",
-    animation: "pulse 1.5s infinite",
-  },
-  skelLines: { flex: 1, display: "flex", flexDirection: "column", gap: 8 },
-  skelLine: (w) => ({
-    height: 12,
-    borderRadius: 6,
-    background: "#1F2C34",
-    width: w,
-    animation: "pulse 1.5s infinite",
-  }),
-};
+import "./chatSystem.css";
 
 const SearchIcon = () => (
   <svg
@@ -180,6 +23,7 @@ const SearchIcon = () => (
     <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );
+
 const DotsIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="#AEBAC1">
     <circle cx="12" cy="5" r="1.5" />
@@ -187,6 +31,7 @@ const DotsIcon = () => (
     <circle cx="12" cy="19" r="1.5" />
   </svg>
 );
+
 const DeleteIcon = () => (
   <svg
     width="22"
@@ -204,12 +49,14 @@ const DeleteIcon = () => (
     <path d="M9 6V4h6v2" />
   </svg>
 );
+
 const NewChatIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="#E9EDEF">
     <path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H6l-2 2V4h16v10z" />
     <path d="M13 11h-2v-2h2v2zm0-4h-2V5h2v2z" />
   </svg>
 );
+
 const BackIcon = () => (
   <svg
     width="22"
@@ -255,6 +102,7 @@ export const ChatList = () => {
   const [selectedConversations, setSelectedConversations] = useState(new Set());
   const [search, setSearch] = useState("");
   const [unreadMap, setUnreadMap] = useState({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const menuRef = useRef(null);
   const pressTimer = useRef(null);
@@ -282,8 +130,12 @@ export const ChatList = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  useEffect(() => {
+  const fetchcoversation = () => {
     dispatch(fetchConversations());
+  };
+
+  useEffect(() => {
+    fetchcoversation();
   }, [dispatch]);
 
   const filtered = conversations.filter((c) =>
@@ -299,7 +151,7 @@ export const ChatList = () => {
     setUnreadMap((prev) => ({ ...prev, [conversation.id]: 0 }));
 
     dispatch(setActiveConversation(conversation));
-    dispatch(fetchMessages(conversation.id));
+    // dispatch(fetchMessages(conversation.id));
     navigate(`/chat/${conversation.id}`, {
       state: {
         receiver_id: conversation.receiver_id,
@@ -326,11 +178,20 @@ export const ChatList = () => {
 
   const handlePressEnd = () => clearTimeout(pressTimer.current);
 
-  const handleDelete = () => {
+  const handleDeleteClick = () => {
     if (selectedConversations.size > 0) {
-      console.log("Delete IDs:", Array.from(selectedConversations));
-      setSelectedConversations(new Set());
+      setShowDeleteModal(true);
     }
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteModal(false);
+    const ids = Array.from(selectedConversations);
+    for (let id of ids) {
+      await dispatch(deleteConversationApi(id));
+      fetchcoversation();
+    }
+    setSelectedConversations(new Set());
   };
 
   const clearSelection = () => setSelectedConversations(new Set());
@@ -345,12 +206,11 @@ export const ChatList = () => {
             <button className="icon-btn" onClick={clearSelection}>
               <BackIcon />
             </button>
-
             <span className="selection-count">
               {selectedConversations.size} selected
             </span>
             <div style={{ flex: 1 }} />
-            <button className="icon-btn" onClick={handleDelete}>
+            <button className="icon-btn" onClick={handleDeleteClick}>
               <DeleteIcon />
             </button>
           </div>
@@ -375,7 +235,7 @@ export const ChatList = () => {
                 </button>
 
                 {showMenu && (
-                  <div className="dropdown">
+                  <div className="dropdown1">
                     <div
                       className="menu-item"
                       onClick={() => {
@@ -427,7 +287,7 @@ export const ChatList = () => {
         <div className="chat-list">
           {loading &&
             Array.from({ length: 7 }).map((_, i) => (
-              <div className="skel-item">
+              <div className="skel-item" key={i}>
                 <div className="skel-avatar" />
                 <div className="skel-lines">
                   <div className="skel-line" style={{ width: "55%" }} />
@@ -530,6 +390,34 @@ export const ChatList = () => {
           </button>
         )}
       </div>
+
+      {showDeleteModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowDeleteModal(false)}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-title">Delete Conversations</div>
+            <div className="modal-text">
+              Are you sure you want to delete {selectedConversations.size}{" "}
+              conversation
+              {selectedConversations.size > 1 ? "s" : ""}? This action cannot be
+              undone.
+            </div>
+            <div className="modal-buttons">
+              <button
+                className="modal-button cancel"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button className="modal-button confirm" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

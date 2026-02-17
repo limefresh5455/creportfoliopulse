@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchConversations,
-  fetchMessages,
   deleteMessage,
   leaveGroupApi,
+  deleteConversationApi,
+  fetchMessages,
 } from "../APIs/ChatSystem/chatSystemApi";
 
 const initialState = {
@@ -136,7 +137,12 @@ const chatSystemSlice = createSlice({
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.loading = false;
-        state.messages = action.payload || [];
+
+        if (action.meta.arg.page === 1) {
+          state.messages = action.payload || [];
+        } else {
+          state.messages = [...state.messages, ...(action.payload || [])];
+        }
       })
       .addCase(fetchMessages.rejected, (state, action) => {
         state.loading = false;
@@ -165,6 +171,15 @@ const chatSystemSlice = createSlice({
         state.leavingGroup = false;
         state.error = action.payload;
       });
+    builder.addCase(deleteConversationApi.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(deleteConversationApi.rejected, (state) => {
+      state.loading = false;
+    });
+    builder.addCase(deleteConversationApi.fulfilled, (state) => {
+      state.loading = false;
+    });
   },
 });
 

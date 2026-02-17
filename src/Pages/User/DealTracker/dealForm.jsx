@@ -99,31 +99,51 @@ const DealForm = () => {
   const handleSubmit = async () => {
     if (loading) return;
 
-    if (!form.tenant_name.trim()) {
-      toast.error("Tenant Name is required");
+    const hasAnyFormValue =
+      Object.values(form).some((value) =>
+        typeof value === "string" ? value.trim() !== "" : !!value,
+      ) ||
+      stages.some(
+        (stage) =>
+          stage.is_completed || (stage.notes && stage.notes.trim() !== ""),
+      );
+
+    if (!hasAnyFormValue) {
+      toast.error("Please enter at least one piece of information");
       return;
     }
 
     setSaving(true);
 
+    const formPayload = {};
+    Object.entries(form).forEach(([key, value]) => {
+      if (typeof value === "string" && value.trim() !== "") {
+        formPayload[key] = value.trim();
+      } else if (value && typeof value !== "string") {
+        formPayload[key] = value;
+      }
+    });
+
+    const stagesPayload = stages.map((stage) => {
+      const stageObj = {
+        stage_name: stage.stage_name,
+        order_index: stage.order_index,
+      };
+      if (stage.is_completed !== undefined) {
+        stageObj.is_completed = stage.is_completed;
+      }
+      if (stage.completed_at) {
+        stageObj.completed_at = stage.completed_at;
+      }
+      if (stage.notes && stage.notes.trim() !== "") {
+        stageObj.notes = stage.notes.trim();
+      }
+      return stageObj;
+    });
+
     const payload = {
-      ...form,
-      stages: stages
-        .map((stage) => {
-          const stageData = {
-            stage_name: stage.stage_name,
-            order_index: stage.order_index,
-            is_completed: stage.is_completed,
-            notes: stage.notes || "",
-          };
-
-          if (stage.is_completed && stage.completed_at) {
-            stageData.completed_at = stage.completed_at;
-          }
-
-          return stageData;
-        })
-        .filter((stage) => stage !== null),
+      ...formPayload,
+      stages: stagesPayload,
     };
 
     try {
@@ -140,11 +160,12 @@ const DealForm = () => {
           broker_of_record: "",
           landlord_lead_of_record: "",
           current_lease_expiration: "",
+          space_inquiry_date: "",
+          space_inquiry_notes: "",
         });
         setStages(baseStages.map(initializeStage));
       } else if (DealFormApi.rejected.match(resultAction)) {
-        const errorMessage = resultAction.payload || "Failed to save deal";
-        // toast.error(errorMessage);
+        toast.error(resultAction.error?.message || "Failed to save deal");
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
@@ -153,7 +174,6 @@ const DealForm = () => {
       setSaving(false);
     }
   };
-
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -231,7 +251,7 @@ const DealForm = () => {
 
           <div className="row g-3">
             {[
-              ["Tenant Name", "tenant_name", "text", true],
+              ["Tenant Name", "tenant_name", "text", false],
               [
                 "Building Address of Interest",
                 "building_address_interest",
