@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../Networking/Admin/APIs/AxiosInstance";
 import {
+  fetchFileUrl,
   fetchMessages,
   leaveGroupApi,
 } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
@@ -22,6 +23,7 @@ export const UserProfile = ({
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [showAllMedia, setShowAllMedia] = useState(false);
@@ -31,20 +33,26 @@ export const UserProfile = ({
 
   const longPressTimerRef = useRef(null);
 
-  const { messages } = useSelector((s) => s.chatSystemSlice);
+  const { messages, fileUrls, fileLoading } = useSelector(
+    (s) => s.chatSystemSlice,
+  );
 
   const mediaFiles = messages
-    .filter((msg) => msg.file_url && msg.file_name && msg.file_id)
+    .filter((msg) => msg.file_name && msg.file_id)
     .map((msg) => ({
       id: msg.id,
       file_id: msg.file_id,
-      url: msg.file_url,
+      url: msg.file_url || fileUrls[msg.file_id],
       name: msg.file_name,
     }));
 
   useEffect(() => {
-    if (conversationId) dispatch(fetchMessages(conversationId));
-  }, [conversationId, dispatch]);
+    mediaFiles.forEach((file) => {
+      if (!file.url && !fileLoading[file.file_id]) {
+        dispatch(fetchFileUrl(file.file_id));
+      }
+    });
+  }, [mediaFiles]);
 
   useEffect(() => {
     if (open) {
@@ -207,8 +215,12 @@ export const UserProfile = ({
                     onMouseUp={cancelLongPress}
                     onMouseLeave={cancelLongPress}
                   >
-                    {isImage(file.name) ? (
-                      <img src={file.url} alt={file.name} />
+                    {fileLoading[file.file_id] ? (
+                      <div className="file-loading">
+                        <i className="ri-loader-4-line spinning" />
+                      </div>
+                    ) : isImage(file.name) ? (
+                      <img src={file.url || ""} alt={file.name} />
                     ) : (
                       <div className="file-thumb">
                         <i className="ri-file-line" />
@@ -272,13 +284,6 @@ export const UserProfile = ({
                 </button>
               </>
             )}
-            <button className="profile-action-btn" style={{ color: "#EA4335" }}>
-              <i
-                className="ri-delete-bin-6-line profile-action-icon"
-                style={{ color: "#EA4335" }}
-              />
-              <span>Delete chat</span>
-            </button>
           </div>
         </div>
       </div>
@@ -290,7 +295,7 @@ export const UserProfile = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3>Media, links and docs</h3>
+              <h3 className="text-dark">Media, links and docs</h3>
               <button
                 className="close-btn"
                 onClick={() => setShowAllMedia(false)}
@@ -306,7 +311,7 @@ export const UserProfile = ({
                   {mediaFiles.map((file) => (
                     <a
                       key={file.id}
-                      href={file.url}
+                      href={file.url || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="media-item"

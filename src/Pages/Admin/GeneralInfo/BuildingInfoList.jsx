@@ -48,12 +48,6 @@ export const BuildingInfoList = () => {
     }
   }, [BuildingList, searchTerm, loading]);
 
-  // const goToChat = (buildingId, category) => {
-  //   navigate("/building-info-upload", {
-  //     state: { buildingId, category },
-  //   });
-  // };
-
   const goToChat = (buildingId, category) => {
     if (category === "tenant_info") {
       navigate("/tenant-info-upload", {

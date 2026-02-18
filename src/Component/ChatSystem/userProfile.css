@@ -50,7 +50,6 @@
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  /* margin-bottom: 20px; */
 }
 
 .back-btn {
@@ -60,7 +59,6 @@
   cursor: pointer;
 }
 
-/* Info text styling */
 .profile-info-text {
   display: flex;
   flex-direction: column;
@@ -68,17 +66,16 @@
   gap: 5px;
 }
 
-/* --------- Desktop layout (row) --------- */
 @media (min-width: 767px) {
   .profile-panel {
-    flex-direction: row; /* Avatar + info side by side */
+    flex-direction: row;
     align-items: center;
     justify-content: space-around;
     padding: 30px;
   }
 
   .profile-avatar.initial-avatar {
-    margin: 0 30px 0 0; /* Right margin instead of bottom */
+    margin: 0 30px 0 0;
   }
 
   .profile-info-text {

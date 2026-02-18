@@ -73,7 +73,6 @@ export const RenewalTrackerList = () => {
       let valA = a.data[sortConfig.key];
       let valB = b.data[sortConfig.key];
 
-      // date sorting
       if (sortConfig.key.includes("date")) {
         valA = new Date(valA || 0).getTime();
         valB = new Date(valB || 0).getTime();

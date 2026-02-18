@@ -151,7 +151,6 @@ export const ChatList = () => {
     setUnreadMap((prev) => ({ ...prev, [conversation.id]: 0 }));
 
     dispatch(setActiveConversation(conversation));
-    // dispatch(fetchMessages(conversation.id));
     navigate(`/chat/${conversation.id}`, {
       state: {
         receiver_id: conversation.receiver_id,
@@ -206,16 +205,19 @@ export const ChatList = () => {
             <button className="icon-btn" onClick={clearSelection}>
               <BackIcon />
             </button>
-            <span className="selection-count">
+
+            <span className="selection-count text-white">
               {selectedConversations.size} selected
             </span>
-            <div style={{ flex: 1 }} />
-            <button className="icon-btn" onClick={handleDeleteClick}>
-              <DeleteIcon />
-            </button>
+
+            <div className="header-actions">
+              <button className="icon-btn delete" onClick={handleDeleteClick}>
+                <DeleteIcon />
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="chat-header2 mx-5 mx-md-0">
+          <div className="chat-header2 ps-5 mx-md-0">
             <span className="chat-title">Chats</span>
             <div className="header-actions">
               <button
@@ -243,7 +245,7 @@ export const ChatList = () => {
                         setShowMenu(false);
                       }}
                     >
-                      💬 &nbsp;New Chat
+                      💬 New Chat
                     </div>
                     <div
                       className="menu-item"
@@ -252,16 +254,7 @@ export const ChatList = () => {
                         setShowMenu(false);
                       }}
                     >
-                      👥 &nbsp;New Group
-                    </div>
-                    <div
-                      className="menu-item"
-                      onClick={() => {
-                        navigate("/settings");
-                        setShowMenu(false);
-                      }}
-                    >
-                      ⚙️ &nbsp;Settings
+                      👥 New Group
                     </div>
                   </div>
                 )}

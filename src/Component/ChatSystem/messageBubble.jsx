@@ -2,160 +2,138 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { format, isToday, isYesterday } from "date-fns";
 import axiosInstance from "../../Networking/Admin/APIs/AxiosInstance";
-import { deleteMessageSocket } from "../../Networking/User/Slice/chatSystemSlice";
 import "./chatSystem.css";
-import { fetchMessages } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import {
+  fetchFileUrl,
+  fetchMessages,
+} from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
 
-const normalizeSocketMessage = (data) => {
-  return {
-    id: data.message_id,
-    sender_id: data.sender_id,
-    sender_name: data.sender_name,
-    content: data.content || "",
-    created_at: data.created_at,
-    conversation_id: data.conversation_id,
-    read: false,
-
-    file_id: data.file_id || null,
-    file_url: data.file_url || null,
-    file_name: data.file_name || null,
-    file_type: data.file_name
-      ? data.file_name.split(".").pop().toLowerCase()
-      : null,
-  };
-};
+const SpinnerIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#fff"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    style={{ animation: "spin 0.8s linear infinite" }}
+  >
+    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+  </svg>
+);
 
 export const ChatMessages = ({ messages, myUserId, conversationId }) => {
   const dispatch = useDispatch();
-  const bottomRef = useRef(null);
-  const hasScrolledInitially = useRef(false);
-  const prevMsgCount = useRef(0);
-  const longPressTimerRef = useRef(null);
-  const containerRef = useRef(null);
 
-  const [localMessages, setLocalMessages] = useState([]);
+  const fileUrls = useSelector((s) => s.chatSystemSlice.fileUrls);
+  const typingUsers = useSelector((s) => s.chatSystemSlice.typingUsers);
+
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [selectionMode, setSelectionMode] = useState(false);
-  const [deletingIds, setDeletingIds] = useState(new Set());
-  const [longPressedMsgId, setLongPressedMsgId] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loadingFileId, setLoadingFileId] = useState(null);
 
-  useEffect(() => {
-    if (conversationId) {
-      dispatch(fetchMessages(conversationId));
-    }
-  }, [conversationId, dispatch]);
+  const scrollRef = useRef(null);
+  const atBottomRef = useRef(true);
+  const prevMessagesLengthRef = useRef(messages.length);
+  const lastMessageRef = useRef(null);
 
-  useEffect(() => {
-    setLocalMessages([]);
-    setSelectedMessages([]);
-    setSelectionMode(false);
-    setLongPressedMsgId(null);
-
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-
-    hasScrolledInitially.current = false;
-    prevMsgCount.current = 0;
-  }, [conversationId]);
-
-  useEffect(() => {
-    setLocalMessages((prev) => {
-      const existingIds = new Set(prev.map((m) => m.id));
-      const merged = [...prev];
-
-      messages.forEach((msg) => {
-        if (!existingIds.has(msg.id)) merged.push(msg);
-      });
-
-      return merged.sort(
-        (a, b) => new Date(a.created_at) - new Date(b.created_at),
-      );
-    });
-  }, [messages]);
-
-  useEffect(() => {
-    if (!window.chatSocket) return;
-
-    const socket = window.chatSocket;
-
-    const handleMessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      if (
-        data.type === "NEW_MESSAGE" &&
-        Number(data.conversation_id) === Number(conversationId)
-      ) {
-        const normalized = normalizeSocketMessage(data);
-
-        setLocalMessages((prev) => {
-          if (prev.some((m) => m.id === normalized.id)) return prev;
-
-          return [...prev, normalized].sort(
-            (a, b) => new Date(a.created_at) - new Date(b.created_at),
-          );
-        });
-      }
-
-      if (
-        data.type === "DELETE_MESSAGE" &&
-        Number(data.conversation_id) === Number(conversationId)
-      ) {
-        setLocalMessages((prev) =>
-          prev.filter((m) => m.id !== data.message_id),
-        );
-      }
-    };
-
-    socket.addEventListener("message", handleMessage);
-    return () => socket.removeEventListener("message", handleMessage);
-  }, [conversationId]);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setLongPressedMsgId(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const typingUsers = useSelector((state) => state.chatSystemSlice.typingUsers);
   const typing = typingUsers?.[conversationId] || {};
 
   useEffect(() => {
-    if (localMessages.length === 0) return;
+    setPage(1);
+    setLoadingMore(false);
+    atBottomRef.current = true;
+    prevMessagesLengthRef.current = messages.length;
+  }, [conversationId]);
 
-    if (!hasScrolledInitially.current) {
-      bottomRef.current?.scrollIntoView({ behavior: "auto" });
-      hasScrolledInitially.current = true;
-      prevMsgCount.current = localMessages.length;
-      return;
+  const handleScroll = () => {
+    const el = scrollRef.current;
+
+    if (!el) return;
+
+    const threshold = 50;
+    atBottomRef.current =
+      el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    if (!loadingMore && el.scrollTop < 5) {
+      setLoadingMore(true);
+      const oldHeight = el.scrollHeight;
+      console.log(conversationId, "conversationId in message");
+
+      dispatch(fetchMessages({ conversationId, page: page + 1 }))
+        .then(() => {
+          const newHeight = scrollRef.current.scrollHeight;
+          scrollRef.current.scrollTop = newHeight - oldHeight;
+          setPage((p) => p + 1);
+        })
+        .catch((err) => {
+          console.error("Failed to load older messages", err);
+        })
+        .finally(() => {
+          setLoadingMore(false);
+        });
     }
-
-    if (localMessages.length > prevMsgCount.current) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      prevMsgCount.current = localMessages.length;
-    }
-  }, [localMessages]);
-
-  const startLongPress = (id) => {
-    longPressTimerRef.current = setTimeout(() => {
-      setLongPressedMsgId(id);
-    }, 500);
   };
 
-  const cancelLongPress = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !messages.length) return;
+
+    const lastMsg = messages[messages.length - 1];
+
+    const isNewMessage =
+      lastMessageRef.current && lastMsg.id !== lastMessageRef.current.id;
+
+    if (isNewMessage && !loadingMore) {
+      el.scrollTop = el.scrollHeight;
+    }
+
+    lastMessageRef.current = lastMsg;
+  }, [messages, loadingMore]);
+
+  const handleFileClick = async (msg) => {
+    let url = fileUrls[msg.file_id];
+
+    try {
+      if (!url && msg.file_id) {
+        setLoadingFileId(msg.file_id);
+
+        const res = await dispatch(fetchFileUrl(msg.file_id));
+
+        if (fetchFileUrl.fulfilled.match(res)) {
+          url = res.payload.url;
+        }
+      }
+
+      if (!url) return alert("File not available");
+
+      window.open(url, "_blank");
+    } catch {
+      alert("Failed to load file");
+    } finally {
+      setLoadingFileId(null);
     }
   };
 
-  const toggleSelectMessage = (id) => {
+  const deleteSelectedMessages = async () => {
+    if (!window.confirm("Delete selected messages?")) return;
+
+    try {
+      await Promise.all(
+        selectedMessages.map((id) =>
+          axiosInstance.delete(`/messenger/messages/${id}`),
+        ),
+      );
+      setSelectedMessages([]);
+      setSelectionMode(false);
+    } catch {
+      alert("Delete failed");
+    }
+  };
+
+  const toggleSelect = (id) => {
     setSelectedMessages((prev) => {
       if (prev.includes(id)) {
         const updated = prev.filter((i) => i !== id);
@@ -167,246 +145,147 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
     });
   };
 
-  const deleteSingleMessage = async (id) => {
-    if (!window.confirm("Delete this message?")) return;
-    if (deletingIds.has(id)) return;
-
-    setDeletingIds((p) => new Set(p).add(id));
-
-    try {
-      await axiosInstance.delete(`/messenger/messages/${id}`);
-
-      dispatch(
-        deleteMessageSocket({
-          conversation_id: conversationId,
-          message_id: id,
-        }),
-      );
-
-      setLocalMessages((prev) => prev.filter((m) => m.id !== id));
-      setLongPressedMsgId(null);
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed");
-    } finally {
-      setDeletingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    }
-  };
-
-  const deleteSelectedMessages = async () => {
-    if (!window.confirm("Delete selected messages?")) return;
-
-    const ids = selectedMessages;
-    setDeletingIds((p) => new Set([...p, ...ids]));
-
-    try {
-      await Promise.all(
-        ids.map((id) => axiosInstance.delete(`/messenger/messages/${id}`)),
-      );
-
-      ids.forEach((id) =>
-        dispatch(
-          deleteMessageSocket({
-            conversation_id: conversationId,
-            message_id: id,
-          }),
-        ),
-      );
-
-      setLocalMessages((prev) => prev.filter((m) => !ids.includes(m.id)));
-      setSelectedMessages([]);
-      setSelectionMode(false);
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed");
-    } finally {
-      setDeletingIds((prev) => {
-        const next = new Set(prev);
-        ids.forEach((id) => next.delete(id));
-        return next;
-      });
-    }
-  };
-
   const groupMessagesByDate = (msgs) => {
     const groups = [];
-    let currentDate = null;
-    let currentGroup = [];
+    let current = null;
+    let arr = [];
 
     msgs.forEach((msg) => {
-      const key = format(new Date(msg.created_at), "yyyy-MM-dd");
+      const d = format(new Date(msg.created_at), "yyyy-MM-dd");
 
-      if (currentDate !== key) {
-        if (currentGroup.length)
-          groups.push({ date: currentDate, messages: currentGroup });
-        currentDate = key;
-        currentGroup = [msg];
-      } else {
-        currentGroup.push(msg);
-      }
+      if (current !== d) {
+        if (arr.length) groups.push({ date: current, messages: arr });
+        current = d;
+        arr = [msg];
+      } else arr.push(msg);
     });
 
-    if (currentGroup.length)
-      groups.push({ date: currentDate, messages: currentGroup });
-
+    if (arr.length) groups.push({ date: current, messages: arr });
     return groups;
   };
 
-  const formatDateLabel = (dateStr) => {
-    const date = new Date(dateStr);
+  const formatDateLabel = (d) => {
+    const date = new Date(d);
     if (isToday(date)) return "Today";
     if (isYesterday(date)) return "Yesterday";
     return format(date, "MMMM d, yyyy");
   };
 
-  const groupedMessages = groupMessagesByDate(localMessages);
+  const groupedMessages = groupMessagesByDate(messages);
 
-  const someoneIsTyping = Object.entries(typing).some(
-    ([id, v]) => v && Number(id) !== Number(myUserId),
+  const someoneTyping = Object.entries(typing).some(
+    ([id, val]) => val && Number(id) !== Number(myUserId),
   );
 
   return (
-    <div className="chat-messages" ref={containerRef}>
+    <div
+      className="chat-messages"
+      ref={scrollRef}
+      onScroll={handleScroll}
+      style={{ overflowY: "auto", height: "100%" }}
+    >
       {selectionMode && (
         <div className="selection-header">
           <span>{selectedMessages.length} selected</span>
-
-          <button
-            onClick={deleteSelectedMessages}
-            disabled={deletingIds.size > 0}
-          >
-            <i className="ri-delete-bin-line" />
-          </button>
-
-          <button
-            onClick={() => {
-              setSelectionMode(false);
-              setSelectedMessages([]);
-            }}
-          >
-            <i className="ri-close-line" />
-          </button>
+          <div className="actions">
+            <button onClick={deleteSelectedMessages}>
+              <i className="ri-delete-bin-line" />
+            </button>
+            <button
+              onClick={() => {
+                setSelectionMode(false);
+                setSelectedMessages([]);
+              }}
+            >
+              <i className="ri-close-line" />
+            </button>
+          </div>
         </div>
       )}
 
-      {localMessages.length === 0 ? (
-        <div className="no-messages">
-          <i className="ri-chat-3-line" />
-          <div>No messages yet</div>
-        </div>
+      {!messages.length ? (
+        <div className="no-messages">No messages yet</div>
       ) : (
         <>
+          {loadingMore && (
+            <div className="chat-loader text-center">
+              <SpinnerIcon />
+            </div>
+          )}
+
           {groupedMessages.map((group, i) => (
             <div key={i}>
-              <div className="date-divider">
-                <span>{formatDateLabel(group.date)}</span>
-              </div>
+              <div className="date-divider">{formatDateLabel(group.date)}</div>
 
               {group.messages.map((msg) => {
                 const isMe = Number(msg.sender_id) === Number(myUserId);
-                const isSelected = selectedMessages.includes(msg.id);
-                const isDeleting = deletingIds.has(msg.id);
-                const showDelete =
-                  longPressedMsgId === msg.id && !selectionMode;
-
-                const isImage =
-                  msg.file_name &&
-                  /\.(jpg|jpeg|png|gif|webp)$/i.test(msg.file_name);
+                const selected = selectedMessages.includes(msg.id);
 
                 return (
                   <div
                     key={msg.id}
                     className={`message-row ${isMe ? "me" : "other"} ${
-                      isSelected ? "selected" : ""
-                    } ${isDeleting ? "deleting" : ""}`}
-                    onClick={() => selectionMode && toggleSelectMessage(msg.id)}
+                      selected ? "selected" : ""
+                    }`}
+                    onClick={() => selectionMode && toggleSelect(msg.id)}
                     onContextMenu={(e) => {
                       e.preventDefault();
-                      toggleSelectMessage(msg.id);
+                      toggleSelect(msg.id);
                     }}
-                    onTouchStart={() => startLongPress(msg.id)}
-                    onTouchEnd={cancelLongPress}
-                    onTouchMove={cancelLongPress}
-                    onMouseDown={() => startLongPress(msg.id)}
-                    onMouseUp={cancelLongPress}
-                    onMouseLeave={cancelLongPress}
                   >
                     <div className={`chat-bubble ${isMe ? "me" : "other"}`}>
-                      <div className="message-content">
-                        {msg.content && (
-                          <div className="text-light">{msg.content}</div>
-                        )}
+                      {msg.content && <div>{msg.content}</div>}
 
-                        {msg.file_url && (
-                          <div className="file-attachment">
-                            {isImage ? (
-                              <img
-                                src={msg.file_url}
-                                alt="attachment"
-                                className="chat-image"
-                              />
+                      {msg.file_name && (
+                        <div className="file-attachment">
+                          {msg.file_name.match(
+                            /\.(jpg|jpeg|png|gif|webp)$/i,
+                          ) ? (
+                            loadingFileId === msg.file_id ? (
+                              <div className="file-loader">Loading...</div>
                             ) : (
-                              <a
-                                href={msg.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ color: "#38bdf8" }}
-                              >
-                                {msg.file_name || "Download file"}
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="message-footer">
-                        <span className="text-light">
-                          {format(new Date(msg.created_at), "HH:mm")}
-                        </span>
-
-                        {/* {isMe && !selectionMode && (
-                          <i
-                            className={
-                              msg.read
-                                ? "ri-check-double-line"
-                                : "ri-check-line"
-                            }
-                          />
-                        )} */}
-                      </div>
-
-                      {showDelete && isMe && (
-                        <button
-                          className="long-press-delete"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteSingleMessage(msg.id);
-                          }}
-                          disabled={isDeleting}
-                        >
-                          {isDeleting ? (
-                            <i className="ri-loader-4-line spinning" />
+                              <img
+                                src={msg.file_url || fileUrls[msg.file_id]}
+                                className="chat-image"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleFileClick(msg);
+                                }}
+                                alt=""
+                              />
+                            )
                           ) : (
-                            <i className="ri-delete-bin-line" />
+                            <div
+                              className="file-card"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFileClick(msg);
+                              }}
+                            >
+                              {loadingFileId === msg.file_id
+                                ? "Loading..."
+                                : `📄 ${msg.file_name}`}
+                            </div>
                           )}
-                        </button>
+                        </div>
                       )}
+
+                      <div className="message-time">
+                        {format(new Date(msg.created_at), "HH:mm")}
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </div>
           ))}
-
-          {someoneIsTyping && <div className="typing-indicator">Typing...</div>}
         </>
       )}
 
-      <div ref={bottomRef} />
+      {loadingMore && (
+        <div className="chat-loader">Loading more messages...</div>
+      )}
+      {someoneTyping && <div className="typing">Typing...</div>}
     </div>
   );
 };

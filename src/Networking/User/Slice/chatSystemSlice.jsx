@@ -5,6 +5,7 @@ import {
   leaveGroupApi,
   deleteConversationApi,
   fetchMessages,
+  fetchFileUrl,
 } from "../APIs/ChatSystem/chatSystemApi";
 
 const initialState = {
@@ -13,6 +14,8 @@ const initialState = {
   activeConversation: null,
   leavingGroup: null,
   userStatus: {},
+  fileUrls: {},
+  fileLoading: {},
 
   typingUsers: {},
 
@@ -117,7 +120,6 @@ const chatSystemSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
       .addCase(fetchConversations.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -180,6 +182,21 @@ const chatSystemSlice = createSlice({
     builder.addCase(deleteConversationApi.fulfilled, (state) => {
       state.loading = false;
     });
+    builder
+      .addCase(fetchFileUrl.pending, (state, action) => {
+        state.fileLoading[action.meta.arg] = true;
+      })
+
+      .addCase(fetchFileUrl.fulfilled, (state, action) => {
+        const { fileId, url } = action.payload;
+
+        state.fileLoading[fileId] = false;
+        state.fileUrls[fileId] = url;
+      })
+
+      .addCase(fetchFileUrl.rejected, (state, action) => {
+        state.fileLoading[action.meta.arg] = false;
+      });
   },
 });
 

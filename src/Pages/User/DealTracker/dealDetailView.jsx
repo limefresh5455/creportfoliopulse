@@ -121,35 +121,28 @@ const DealDetailView = () => {
     }
 
     setSaving(true);
-
-    // Build form payload: include only fields with non‑empty strings
     const formPayload = {};
     Object.entries(form).forEach(([key, value]) => {
       if (typeof value === "string" && value.trim() !== "") {
-        // Convert date fields to ISO string if they are in YYYY-MM-DD format
         if (
           key === "current_lease_expiration" ||
           key === "space_inquiry_date"
         ) {
-          // value is YYYY-MM-DD, create ISO date at UTC midnight
           formPayload[key] = new Date(value + "T00:00:00.000Z").toISOString();
         } else {
           formPayload[key] = value.trim();
         }
       }
     });
-
-    // Build stages payload
     const stagesPayload = stages.map((stage) => {
       const stageObj = {
-        id: stage.id, // required to identify the stage
+        id: stage.id,
         stage_name: stage.stage_name,
         order_index: stage.order_index,
-        is_completed: stage.is_completed, // always include (boolean)
+        is_completed: stage.is_completed,
       };
 
       if (stage.is_completed && stage.completed_at) {
-        // Convert date to ISO string
         stageObj.completed_at = new Date(
           stage.completed_at + "T00:00:00.000Z",
         ).toISOString();
@@ -178,7 +171,6 @@ const DealDetailView = () => {
       setDeal(result);
       setIsEditMode(false);
 
-      // Refresh form with the updated data
       setForm({
         tenant_name: result.tenant_name || "",
         building_address_interest: result.building_address_interest || "",

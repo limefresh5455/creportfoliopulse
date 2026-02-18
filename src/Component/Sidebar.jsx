@@ -517,13 +517,13 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           isActivePath={isActive("/yardi")}
           enabled={profileData.yardi_enabled}
         />
-        {/* <NavItem
+        <NavItem
           path="/messages"
           icon="bi-journal-text"
           label="Messages"
           isActivePath={isActive("/messages")}
           enabled={profileData.gemini_chat_enabled}
-        /> */}
+        />
 
         <NavItem
           path="/project-management"

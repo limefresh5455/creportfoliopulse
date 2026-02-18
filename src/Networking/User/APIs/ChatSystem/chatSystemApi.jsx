@@ -16,6 +16,8 @@ export const fetchConversations = createAsyncThunk(
 export const fetchMessages = createAsyncThunk(
   "chat/fetchMessages",
   async ({ conversationId, page = 1 }, { rejectWithValue }) => {
+    console.log(conversationId, "conversationId");
+
     try {
       const res = await axiosInstance.get(
         `/messenger/conversations/messages/${conversationId}?page=${page}`,
@@ -75,16 +77,13 @@ export const fetchFileUrl = createAsyncThunk(
   "chat/fetchFileUrl",
   async (fileId, { rejectWithValue }) => {
     try {
-      const token = sessionStorage.getItem("access_token");
-      const res = await axiosInstance.get(`/messenger/file/${fileId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return { fileId, url: res.data.url };
-    } catch (err) {
-      return rejectWithValue({
+      const res = await axiosInstance.get(`/messenger/file/${fileId}`);
+      return {
         fileId,
-        error: err.response?.data || err.message,
-      });
+        url: res.data.url,
+      };
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Failed to load file");
     }
   },
 );

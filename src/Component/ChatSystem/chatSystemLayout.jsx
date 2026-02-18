@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useWebSocket } from "../../Context/WebSocketContext";
@@ -12,6 +12,7 @@ import { clearMessages } from "../../Networking/User/Slice/chatSystemSlice";
 
 export const ChatLayout = () => {
   const { conversationId } = useParams();
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -21,51 +22,28 @@ export const ChatLayout = () => {
   const participants = location.state?.participants;
 
   const dispatch = useDispatch();
-  const { messages, userStatus, hasMore } = useSelector(
-    (s) => s.chatSystemSlice,
-  );
+  const { messages, userStatus } = useSelector((s) => s.chatSystemSlice);
 
   const { sendMessage, myUserId } = useWebSocket();
 
   const [showProfile, setShowProfile] = useState(false);
   const [text, setText] = useState("");
-  const [page, setPage] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
-
-  const scrollRef = useRef(null);
 
   useEffect(() => {
     if (!conversationId) return;
-
     dispatch(clearMessages());
-    setPage(1);
-
-    dispatch(fetchMessages({ conversationId, page: 1 }));
+    if (conversationId) {
+      dispatch(fetchMessages({ conversationId, page: 1 }));
+    }
   }, [conversationId, dispatch]);
 
   useEffect(() => {
     if (!conversationId) return;
-
     sendMessage({
       type: "JOIN_CONVERSATION",
       conversation_id: Number(conversationId),
     });
   }, [conversationId, sendMessage]);
-
-  const handleScroll = async () => {
-    const el = scrollRef.current;
-    if (!el || loadingMore || !hasMore) return;
-
-    if (el.scrollTop === 0) {
-      setLoadingMore(true);
-
-      const nextPage = page + 1;
-      await dispatch(fetchMessages({ conversationId, page: nextPage }));
-
-      setPage(nextPage);
-      setLoadingMore(false);
-    }
-  };
 
   const allMessages = useMemo(() => {
     return [...messages].sort(
@@ -84,13 +62,6 @@ export const ChatLayout = () => {
     });
   };
 
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    el.scrollTop = el.scrollHeight;
-  }, [messages.length]);
-
   return (
     <div className="chat-root">
       <ChatHeader
@@ -102,13 +73,11 @@ export const ChatLayout = () => {
         onProfileClick={() => setShowProfile(true)}
       />
 
-      <div ref={scrollRef} className="chat-scroll-area" onScroll={handleScroll}>
-        <ChatMessages messages={allMessages} myUserId={myUserId} />
-
-        {loadingMore && (
-          <div className="chat-loader">Loading more messages...</div>
-        )}
-      </div>
+      <ChatMessages
+        messages={allMessages}
+        myUserId={myUserId}
+        conversationId={conversationId}
+      />
 
       <ChatInput
         text={text}
