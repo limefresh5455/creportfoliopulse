@@ -215,12 +215,12 @@ export const SpaceInquiry = () => {
         imap_password: res?.imap_password ?? "",
         building_addresses_list:
           Array.isArray(res?.building_addresses_list) &&
-            res.building_addresses_list.length > 0
+          res.building_addresses_list.length > 0
             ? res.building_addresses_list
             : [""],
         trusted_sender_domains:
           Array.isArray(res?.trusted_sender_domains) &&
-            res.trusted_sender_domains.length > 0
+          res.trusted_sender_domains.length > 0
             ? res.trusted_sender_domains
             : [""],
         is_active: typeof res?.is_active === "boolean" ? res.is_active : true,
@@ -482,7 +482,7 @@ export const SpaceInquiry = () => {
 
             <hr />
 
-            <h5>Building Addresses</h5>
+            <h5 className="">Building Addresses</h5>
             {form.building_addresses_list.map((item, index) => (
               <div className="d-flex mb-2" key={index}>
                 <Form.Control
@@ -823,8 +823,9 @@ export const SpaceInquiry = () => {
                   <div className="mb-4">
                     <h5 className="fw-bold mb-3"> Status</h5>
                     <span
-                      className={`badge px-3  ${configDetails.is_active ? "bg-success" : "bg-danger"
-                        }`}
+                      className={`badge px-3  ${
+                        configDetails.is_active ? "bg-success" : "bg-danger"
+                      }`}
                     >
                       {configDetails.is_active ? "Active" : "Inactive"}
                     </span>
@@ -1001,35 +1002,35 @@ export const SpaceInquiry = () => {
 
               {(selectedInquiry.additional_notes ||
                 selectedInquiry.attachments) && (
-                  <div className="card shadow-sm border-0">
-                    <div className="card-header bg-warning">
-                      <h6 className="mb-0 fw-semibold">
-                        <i className="bi bi-paperclip me-2"></i>
-                        Additional Information
-                      </h6>
-                    </div>
-
-                    <div className="card-body">
-                      {selectedInquiry.additional_notes && (
-                        <div className="mb-3">
-                          <label className="text-muted small">Notes</label>
-                          <div className="p-2 border rounded bg-light">
-                            {selectedInquiry.additional_notes}
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedInquiry.attachments && (
-                        <div>
-                          <label className="text-muted small">Attachments</label>
-                          <div className="p-2 border rounded bg-light">
-                            {selectedInquiry.attachments}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                <div className="card shadow-sm border-0">
+                  <div className="card-header bg-warning">
+                    <h6 className="mb-0 fw-semibold">
+                      <i className="bi bi-paperclip me-2"></i>
+                      Additional Information
+                    </h6>
                   </div>
-                )}
+
+                  <div className="card-body">
+                    {selectedInquiry.additional_notes && (
+                      <div className="mb-3">
+                        <label className="text-muted small">Notes</label>
+                        <div className="p-2 border rounded bg-light">
+                          {selectedInquiry.additional_notes}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedInquiry.attachments && (
+                      <div>
+                        <label className="text-muted small">Attachments</label>
+                        <div className="p-2 border rounded bg-light">
+                          {selectedInquiry.attachments}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-5">
