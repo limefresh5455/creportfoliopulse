@@ -1,0 +1,48 @@
+.rag-loader {
+  display: inline-flex;
+  gap: 5px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.rag-letter {
+  animation: rag-bounce 0.6s infinite alternate;
+}
+
+.rag-letter:nth-child(1) {
+  animation-delay: 0s;
+}
+.rag-letter:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.rag-letter:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.rag-letter:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.rag-letter:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.rag-letter:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.rag-letter:nth-child(7) {
+  animation-delay: 0.6s;
+}
+.rag-letter:nth-child(8) {
+  animation-delay: 0.7s;
+}
+.rag-letter:nth-child(9) {
+  animation-delay: 0.8s;
+}
+
+@keyframes rag-bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-6px);
+  }
+}

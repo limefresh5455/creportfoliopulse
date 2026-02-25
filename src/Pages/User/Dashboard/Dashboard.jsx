@@ -35,8 +35,8 @@ export const Dashboard = () => {
     searchTerm.trim() === ""
       ? BuildingList
       : BuildingList.filter((building) =>
-          building.address?.toLowerCase().includes(searchTerm.toLowerCase()),
-        );
+        building.address?.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
 
   const goToChat = (buildingId, category) => {
     if (category === "tenant_info") {
@@ -79,8 +79,8 @@ export const Dashboard = () => {
       )}
 
       <section
-        style={{ backgroundColor: "#1f1f1f" }}
-        className="hero-section text-white d-flex align-items-center justify-content-center text-center"
+        style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}
+        className="hero-section d-flex align-items-center justify-content-center text-center"
       >
         <div>
           <img
@@ -88,7 +88,7 @@ export const Dashboard = () => {
             alt="Under Construction"
             className="dashboard_logo mb-3 animate__animated animate__fadeInDown"
           />
-          <h1 className="display-4 fw-bold animate__animated animate__fadeInUp">
+          <h1 className="display-4 fw-bold text-white animate__fadeInUp">
             Welcome to Portfolio Pulse
           </h1>
         </div>
@@ -142,7 +142,7 @@ export const Dashboard = () => {
                   <div className="d-flex align-items-center justify-content-between ">
                     <div className="d-flex flex-column">
                       <div className="d-flex align-items-center">
-                        <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
+                        <i className="bi bi-geo-alt-fill me-2"></i>
                         <span className="fw-semibold">
                           {building.address || "N/A"}
                         </span>
@@ -150,13 +150,12 @@ export const Dashboard = () => {
 
                       <div className="d-flex align-items-center mt-1">
                         <i
-                          className={`bi bi-people-fill me-2 ${
-                            building.current_occupancy > 80
-                              ? "text-success"
-                              : building.current_occupancy > 50
-                                ? "text-warning"
-                                : "text-danger"
-                          }`}
+                          className={`bi bi-people-fill me-2 ${building.current_occupancy > 80
+                            ? "text-success"
+                            : building.current_occupancy > 50
+                              ? "text-warning"
+                              : "text-danger"
+                            }`}
                         ></i>
                         <span className="fw-semibold">
                           {building.current_occupancy ?? 0}%

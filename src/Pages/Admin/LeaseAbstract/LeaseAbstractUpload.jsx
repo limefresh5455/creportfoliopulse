@@ -138,7 +138,7 @@ export const LeaseAbstractUpload = () => {
   const setItemLoadingState = (fileId, value) =>
     setItemLoading((prev) => ({ ...prev, [fileId]: value }));
 
- 
+
 
   const handleDownloadDraft = async (file_id) => {
     if (!file_id) {
@@ -180,7 +180,7 @@ export const LeaseAbstractUpload = () => {
           automatically.
         </p>
 
-        <div className="border border-2 rounded-3 py-5 text-center mb-4 bg-light">
+        <div className="border border-2 rounded-3 py-5 text-center mb-4">
           <i className="bi bi-upload fs-1 text-primary"></i>
           <h6 className="fw-semibold mt-3">Upload Lease Agreement</h6>
           <p className="text-muted mb-3">
@@ -297,29 +297,29 @@ export const LeaseAbstractUpload = () => {
                   </p>
                 </div>
 
-             <div className="modal-footer">
-  <button
-    className="btn btn-secondary"
-    onClick={() => setShowConfirmModal(false)}
-    disabled={isDeleting}
-  >
-    Cancel
-  </button>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowConfirmModal(false)}
+                    disabled={isDeleting}
+                  >
+                    Cancel
+                  </button>
 
-  <button
-    className="btn btn-danger d-flex align-items-center"
-    onClick={confirmDelete}
-    disabled={isDeleting}
-  >
-    {isDeleting && (
-      <span
-        className="spinner-border spinner-border-sm me-2"
-        role="status"
-      />
-    )}
-    {isDeleting ? "Deleting..." : "Delete"}
-  </button>
-</div>
+                  <button
+                    className="btn btn-danger d-flex align-items-center"
+                    onClick={confirmDelete}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting && (
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      />
+                    )}
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
 
               </div>
             </div>

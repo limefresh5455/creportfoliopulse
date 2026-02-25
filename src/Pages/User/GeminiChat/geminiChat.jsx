@@ -167,10 +167,10 @@ export const GeminiChat = () => {
               file:
                 Array.isArray(item.file_meta) && item.file_meta.length > 0
                   ? {
-                      name: item.file_meta[0].name,
-                      size: item.file_meta[0].size,
-                      url: item.file_meta[0].url || null,
-                    }
+                    name: item.file_meta[0].name,
+                    size: item.file_meta[0].size,
+                    url: item.file_meta[0].url || null,
+                  }
                   : null,
 
               timestamp: item.created_at,
@@ -354,9 +354,9 @@ export const GeminiChat = () => {
       formData.append(
         "question",
         message ||
-          (attachedFile
-            ? `Analyze this document: ${attachedPreview.name}`
-            : ""),
+        (attachedFile
+          ? `Analyze this document: ${attachedPreview.name}`
+          : ""),
       );
 
       if (attachedFile) {
@@ -431,16 +431,14 @@ export const GeminiChat = () => {
 
     return (
       <div
-        className={`d-inline-block px-3 py-2 position-relative responsive-box ${
-          isAdmin ? "" : "bg-secondary text-light"
-        }`}
+        className={`d-inline-block px-3 py-2 position-relative responsive-box ${isAdmin ? "" : "bg-secondary text-light"
+          }`}
         style={{ maxWidth: "85%" }}
       >
         {isAdmin && msg.message && (
           <i
-            className={`bi ${
-              speakingIndex === index ? "bi-volume-up-fill" : "bi-volume-mute"
-            }`}
+            className={`bi ${speakingIndex === index ? "bi-volume-up-fill" : "bi-volume-mute"
+              }`}
             style={{
               cursor: "pointer",
               fontSize: "1rem",
@@ -488,13 +486,13 @@ export const GeminiChat = () => {
             className="d-flex justify-content-center align-items-center h-100"
           >
             <div
-              className="p-4 bg-white shadow-sm rounded-4 text-center"
+              className="p-4 shadow-sm rounded-4 text-center"
               style={{ width: "100%", maxWidth: 600 }}
             >
-              <h5 className="mb-3 text-muted d-flex align-items-center justify-content-between">
+              <h5 className="mb-3 d-flex align-items-center justify-content-between">
                 <span className="d-flex align-items-center">
                   <i
-                    className="bi bi-stars me-2 text-secondary"
+                    className="bi bi-stars me-2"
                     style={{ fontSize: "1.3rem" }}
                   ></i>
                   Gemini
@@ -584,17 +582,15 @@ export const GeminiChat = () => {
                       </button>
                     ) : (
                       <button
-                        className={`btn rounded-circle ${
-                          isRecording ? "btn-danger" : "btn-outline-secondary"
-                        } ${isActionDisabled ? "disabled" : ""}`}
+                        className={`btn rounded-circle ${isRecording ? "btn-danger" : "btn-outline-secondary"
+                          } ${isActionDisabled ? "disabled" : ""}`}
                         onClick={startRecording}
                         disabled={isSending || isActionDisabled}
                         style={{ width: "38px", height: "38px" }}
                       >
                         <i
-                          className={`bi ${
-                            isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                          }`}
+                          className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
+                            }`}
                         ></i>
                       </button>
                     )}
@@ -627,7 +623,7 @@ export const GeminiChat = () => {
                 <div className="chat-header d-flex justify-content-between align-items-center mb-2">
                   <h5 className="chat-title text-muted mb-0 d-flex align-items-center">
                     <i
-                      className="bi bi-stars me-2 text-secondary"
+                      className="bi bi-stars me-2"
                       style={{ fontSize: "1.3rem" }}
                     ></i>
                     Gemini
@@ -647,7 +643,7 @@ export const GeminiChat = () => {
 
                 <div
                   ref={chatRef}
-                  className="flex-grow-1 overflow-auto p-3 bg-light rounded mb-2 hide-scrollbar"
+                  className="flex-grow-1 overflow-auto p-3 rounded mb-2 hide-scrollbar"
                 >
                   {isLoadingHistory || !initialLoadComplete ? (
                     <LoadingSpinner />
@@ -683,7 +679,7 @@ export const GeminiChat = () => {
 
                 <div className="pt-2 pb-1">
                   {attachedPreview && (
-                    <div className="mb-2 px-3 py-2 bg-light border rounded d-flex justify-content-between align-items-center">
+                    <div className="mb-2 px-3 py-2  border rounded d-flex justify-content-between align-items-center">
                       <div className="d-flex align-items-center">
                         <i className="bi bi-file-earmark-pdf text-danger me-2"></i>
                         <div>
@@ -775,9 +771,8 @@ export const GeminiChat = () => {
                       </button>
                     ) : (
                       <button
-                        className={`btn rounded-circle ${
-                          isRecording ? "btn-danger" : "btn-outline-secondary"
-                        } ${isActionDisabled ? "disabled" : ""}`}
+                        className={`btn rounded-circle ${isRecording ? "btn-danger" : "btn-outline-secondary"
+                          } ${isActionDisabled ? "disabled" : ""}`}
                         onClick={startRecording}
                         disabled={
                           isSending || isReplyLoading || isActionDisabled
@@ -785,9 +780,8 @@ export const GeminiChat = () => {
                         style={{ width: "38px", height: "38px" }}
                       >
                         <i
-                          className={`bi ${
-                            isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                          }`}
+                          className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
+                            }`}
                         ></i>
                       </button>
                     )}

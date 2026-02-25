@@ -16,7 +16,7 @@ export const Yardi = () => {
       </div>
 
 
-      <div className="yardi-image-wrapper">
+      <div className="yardi-image-wrapper p-2">
         <img
           src={yardiImage}
           alt="Yardi Placeholder"

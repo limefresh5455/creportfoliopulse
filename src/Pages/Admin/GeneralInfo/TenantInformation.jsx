@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 export const TenantInformationUpload = () => {
   const location = useLocation();
 
-  const buildingId = location?.state?.buildingId;
+  const buildingId = location?.state?.office?.buildingId;
 
   return (
     <DocumentManager

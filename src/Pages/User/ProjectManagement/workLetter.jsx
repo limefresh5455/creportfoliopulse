@@ -125,11 +125,11 @@ export const WorkLetter = () => {
 
   return (
     <div className="work-letter container-fluid p-4">
-      <div className="d-flex justify-content-between align-items-start mb-4 p-3 rounded bg-white shadow-sm border">
+      <div className="d-flex justify-content-between align-items-start mb-4 p-3 rounded shadow-sm border">
         <div className="d-flex mx-0 mx-md-0">
           <BackButton />
 
-          <div className="align-items-center text-muted small">
+          <div className="align-items-center small">
             <h4 className="fw-semibold mb-1 mx-2">6th Floor Work Letter</h4>
             <i className="bi bi-geo-alt-fill me-1"></i>
             <span>260 Fifth Avenue, New York, NY</span>
@@ -300,7 +300,7 @@ export const WorkLetter = () => {
       )}
 
       {activeTab === "documents" && (
-        <div className="text-muted">
+        <div className="">
           <DocumentList projectId={projectId} />
         </div>
       )}
@@ -563,7 +563,7 @@ const SummaryCard = ({
   title,
   value,
   sub,
-  valueColor = "text-dark",
+  valueColor = "",
   progress,
   onClick,
 }) => (
@@ -574,7 +574,7 @@ const SummaryCard = ({
       role={onClick ? "button" : undefined}
     >
       <div className="card-body">
-        <small className="text-muted fw-medium">{title}</small>
+        <small className="fw-medium">{title}</small>
 
         <div className={`fw-bold fs-5 mt-1 ${valueColor}`}>{value}</div>
 
@@ -584,7 +584,7 @@ const SummaryCard = ({
           </div>
         )}
 
-        {sub && <small className="text-muted d-block mt-2">{sub}</small>}
+        {sub && <small className="d-block mt-2">{sub}</small>}
       </div>
     </div>
   </div>
@@ -596,7 +596,7 @@ const Tab = ({ label, active, onClick }) => (
     onClick={onClick}
     className={`
       tab-btn
-      ${active ? "tab-active fw-semibold" : "text-muted"}
+      ${active ? "tab-active fw-semibold" : ""}
     `}
   >
     {label}

@@ -145,8 +145,10 @@ export const SubleaseTracker = ({ data }) => {
         <h2 className="fw-bold ms-2">New Sublease Tracker</h2>
       </div>
 
-      <div className="card p-4 mb-4">
-        <h4 className="mb-5">Sublease Identification</h4>
+      <div className="p-4 shadow-sm  rounded border position-relative">
+        <h5 className="fw-bold pb-2 border-bottom mb-3">
+          Sublease Identification
+        </h5>
         <div className="row g-3">
           {[
             { label: "Sub-Tenant Name", name: "subTenantName" },
@@ -181,30 +183,22 @@ export const SubleaseTracker = ({ data }) => {
               placeholder: "Name, Phone, Email",
             },
           ].map((field, idx) => (
-            <div
-              key={idx}
-              className="d-flex flex-column flex-md-row align-items-start col-12 col-md-12"
-            >
-              <div className="col-12 col-md-3 mb-2 mb-md-0">
-                <label className="fw-bold form-label">{field.label}</label>
-              </div>
-              <div className="col-12 col-md-9">
-                <input
-                  type={field.type || "text"}
-                  name={field.name}
-                  value={form[field.name] || ""}
-                  onChange={handleChange}
-                  placeholder={field.placeholder || ""}
-                  className="form-control border-primary"
-                />
-              </div>
+            <div key={idx} className="col-md-6 col-12">
+              <label className="fw-bold form-label">{field.label}</label>
+
+              <input
+                type={field.type || "text"}
+                name={field.name}
+                value={form[field.name] || ""}
+                onChange={handleChange}
+                placeholder={field.placeholder || ""}
+                className="form-control border-primary"
+              />
             </div>
           ))}
         </div>
-      </div>
 
-      <div className="card p-4 mb-4">
-        <h4 className="mb-3">Notes</h4>
+        <h5 className="fw-bold pb-2 border-bottom my-3">Notes</h5>
 
         <textarea
           name="notes"
@@ -214,9 +208,7 @@ export const SubleaseTracker = ({ data }) => {
           className="form-control border-primary"
           placeholder="Enter any additional notes here..."
         />
-      </div>
 
-      <div className="card p-4 mb-2">
         <h4 className="mb-3">Lease & Tenant Details</h4>
 
         {quarters.map((q) => (
@@ -250,21 +242,20 @@ export const SubleaseTracker = ({ data }) => {
             </div>
           </div>
         ))}
-      </div>
 
-      <div className="d-flex flex-wrap justify-content-center gap-2">
-        <button
-          onClick={handleSubmit}
-          className="btn btn-primary"
-          disabled={loading}
-        >
-          {loading ? (
-            <span className="spinner-border spinner-border-sm me-2"></span>
-          ) : null}
-          {loading ? "Submitting..." : "Submit"}
-        </button>
+        <div className="d-flex flex-wrap justify-content-center gap-3 mt-4 pt-3">
+          <button
+            onClick={handleSubmit}
+            className="btn btn-primary"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="spinner-border spinner-border-sm me-2"></span>
+            ) : null}
+            {loading ? "Submitting..." : "Submit"}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
-

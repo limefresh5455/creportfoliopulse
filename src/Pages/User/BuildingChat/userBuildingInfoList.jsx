@@ -22,8 +22,8 @@ export const UserBuildingInfolist = () => {
     searchTerm.trim() === ""
       ? BuildingList
       : BuildingList.filter((b) =>
-          b.address?.toLowerCase().includes(searchTerm.toLowerCase()),
-        );
+        b.address?.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
 
   useEffect(() => {
     filteredBuildings.forEach((building, i) => {
@@ -55,13 +55,15 @@ export const UserBuildingInfolist = () => {
       </div>
 
       <div className="container-fuild p-3">
-        <input
-          type="search"
-          className="form-control"
-          placeholder="Search by address..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="mb-3">
+          <input
+            type="search"
+            className="form-control"
+            placeholder="Search by address..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         {loading ? (
           <div className="text-center py-5">
             <RAGLoader />
@@ -91,13 +93,12 @@ export const UserBuildingInfolist = () => {
 
                       <div className="d-flex align-items-center mt-1">
                         <i
-                          className={`bi bi-people-fill me-2 ${
-                            building.current_occupancy > 80
+                          className={`bi bi-people-fill me-2 ${building.current_occupancy > 80
                               ? "text-success"
                               : building.current_occupancy > 50
                                 ? "text-warning"
                                 : "text-danger"
-                          }`}
+                            }`}
                         ></i>
                         <span className="fw-semibold">
                           {building.current_occupancy ?? 0}%

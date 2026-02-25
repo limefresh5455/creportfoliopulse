@@ -205,7 +205,7 @@ export const ProjectList = () => {
   };
 
   return (
-    <div className="container-fluid p-4 bg-light min-vh-100">
+    <div className="container-fluid p-4 min-vh-100">
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center gap-3 mb-4">
         <div className="d-flex mx-3 mx-md-0">
           <BackButton />

@@ -1,7 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
-import { feedbacksubmit, getfeedback, updatefeedback } from "../../../NWconfig";
+import {
+  feedbacksubmit,
+  getfeedback,
+  getinfocollaborationbuildings,
+  updatefeedback,
+} from "../../../NWconfig";
 
 export const FeedbackSubmit = createAsyncThunk(
   "auth/FeedbackSubmit",
@@ -17,9 +22,22 @@ export const FeedbackSubmit = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
+export const fetchBuildings = createAsyncThunk(
+  "getBuildings",
+  async (category, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `${getinfocollaborationbuildings}?category=${category}`,
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  },
+);
 
 export const GetFeedbackList = createAsyncThunk(
   "auth/GetFeedbackList",
@@ -30,25 +48,29 @@ export const GetFeedbackList = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
- 
+
 export const UpdateFeedback = createAsyncThunk(
   "UpdateFeedback",
-  async ({ feedback_id, feedback }, { rejectWithValue }) => {
+  async ({ id, category, building_id, form_data }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch(
-        `${updatefeedback}${feedback_id}`,
+      console.log(id, "id");
+
+      const response = await axiosInstance.put(
+        `/information_collaboration/admin/update/${id}`,
         {
-          feedback,
-        }
+          category,
+          building_id: Number(building_id),
+          form_data,
+        },
       );
 
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(error.response?.data?.message || "Update failed");
     }
-  }
+  },
 );
 
 export const DeleteFeedbackSubmit = createAsyncThunk(
@@ -56,12 +78,59 @@ export const DeleteFeedbackSubmit = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(
-        `/feedback/?feedback_id=${id}`
+        `/information_collaboration/admin/delete/${id}`,
       );
-      toast.success(response.data.message);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
 );
+
+export const ReviewInformationCollaboration = createAsyncThunk(
+  "informationCollaboration/review",
+  async ({ id, decision }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/information_collaboration/review/${id}?decision=${decision}`,
+        {},
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Review failed");
+    }
+  },
+);
+
+// export default UpdateFeedback = createAsyncThunk(
+//   "UpdateFeedback",
+//   async ({ feedback_id, feedback }, { rejectWithValue }) => {
+//     try {
+//       const response = await axiosInstance.patch(
+//         `${updatefeedback}${feedback_id}`,
+//         {
+//           feedback,
+//         },
+//       );
+
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response?.data?.message);
+//     }
+//   },
+// );
+
+// export const DeleteFeedbackSubmit = createAsyncThunk(
+//   "DeleteFeedbackSubmit",
+//   async (id, { rejectWithValue }) => {
+//     try {
+//       const response = await axiosInstance.delete(
+//         `/feedback/?feedback_id=${id}`,
+//       );
+//       toast.success(response.data.message);
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response?.data?.message);
+//     }
+//   },
+// );

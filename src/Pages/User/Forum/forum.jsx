@@ -42,6 +42,9 @@ export const PortfolioForum = () => {
   const [threadToDelete, setThreadToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // NEW: controls which screen is shown
+  const [currentView, setCurrentView] = useState("list"); // 'list' or 'thread'
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
@@ -97,6 +100,8 @@ export const PortfolioForum = () => {
       if (selectedThread?.id === threadToDelete) {
         setSelectedThread(null);
         setThreadMessages([]);
+        // If we were viewing the deleted thread, go back to list
+        setCurrentView("list");
       }
       toast.success("Thread deleted successfully");
     } catch (err) {
@@ -120,6 +125,8 @@ export const PortfolioForum = () => {
     try {
       const data = await dispatch(getThreadhistory(thread.id)).unwrap();
       setThreadMessages(data.thoughts || []);
+      // Switch to thread view after loading
+      setCurrentView("thread");
     } catch (error) {
       toast.error("Failed to load thread history");
     } finally {
@@ -317,427 +324,318 @@ export const PortfolioForum = () => {
 
   return (
     <div className="container-fluid p-0" style={{ height: "100vh" }}>
-      <div className="row g-0 h-100">
-        <div className="d-block d-lg-none col-12 border-bottom">
-          <Accordion>
-            <Accordion.Item eventKey="0">
-              <Accordion.Header style={{ paddingLeft: "25px" }}>
-                Portfolio Threads ({threads.length})
-              </Accordion.Header>
-              <Accordion.Body style={{ maxHeight: "40vh", overflowY: "auto" }}>
-                <Button
-                  className="w-100 mb-3"
-                  style={{ background: "#6c757d", border: 0 }}
-                  onClick={handleCreatethread}
-                >
-                  + New Portfolio Thread
-                </Button>
+      {currentView === "list" ? (
+        <div className="p-3 h-100 overflow-auto">
+          <h5 className="fw-bold px-4 px-md-0">
+            Portfolio Threads ({threads.length})
+          </h5>
 
-                <Form.Control
-                  type="text"
-                  placeholder="Search threads..."
-                  className="mb-3"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+          <Button
+            className="w-100 my-3"
+            style={{ background: "#6c757d", border: 0 }}
+            onClick={handleCreatethread}
+          >
+            + New Portfolio Thread
+          </Button>
 
-                {loadingThreads ? (
-                  <div className="text-center py-3">
-                    <div className="spinner-border text-secondary" />
-                    <p className="text-muted mt-2">Loading threads...</p>
-                  </div>
-                ) : (
-                  filteredThreads.map((t) => (
-                    <Card
-                      key={t.id}
-                      className={`p-3 mb-2 shadow-sm border ${
-                        selectedThread?.id === t.id ? "border-primary" : ""
-                      }`}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handlethreadhistory(t)}
-                    >
-                      <h6
-                        className="fw-bold mb-1 text-truncate"
-                        style={{ maxWidth: "100%" }}
-                      >
-                        {t.title?.length > 28
-                          ? t.title.slice(0, 28) + "..."
-                          : t.title}
-                      </h6>
+          <Form.Control
+            type="text"
+            placeholder="Search threads by title or author..."
+            className="mb-3"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
-                      <div className="d-flex justify-content-between align-items-center mt-1">
-                        <div
-                          className="d-flex align-items-center gap-2"
-                          style={{ fontSize: 14 }}
-                        >
-                          <span>{t.author_name}</span>
-                          <span>|</span>
-                          <span>
-                            last thought at{" "}
-                            {t.last_thought_at
-                              ? formatRelativeDate(t.last_thought_at)
-                              : "-"}
-                          </span>
-                        </div>
-
-                        <button
-                          className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
-                          style={{ width: 32, height: 30, padding: 0 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteThread(t.id);
-                          }}
-                        >
-                          {deletingId === t.id ? (
-                            <Spinner
-                              animation="border"
-                              size="sm"
-                              style={{ width: "14px", height: "14px" }}
-                            />
-                          ) : (
-                            <i
-                              className="bi bi-trash"
-                              style={{ fontSize: 14 }}
-                            ></i>
-                          )}
-                        </button>
-                      </div>
-                    </Card>
-                  ))
-                )}
-              </Accordion.Body>
-            </Accordion.Item>
-          </Accordion>
-        </div>
-
-        <div
-          className="d-none d-lg-block col-lg-3 border-end hide-scrollbar"
-          style={{ overflowY: "auto", height: "100%" }}
-        >
-          <div className="p-3">
-            <h5 className="fw-bold">Portfolio Threads ({threads.length})</h5>
-
-            <Button
-              className="w-100 my-3"
-              style={{ background: "#6c757d", border: 0 }}
-              onClick={handleCreatethread}
-            >
-              + New Portfolio Thread
-            </Button>
-
-            <Form.Control
-              type="text"
-              placeholder="Search threads by title or author..."
-              className="mb-3"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-
-            {loadingThreads ? (
-              <div className="text-center py-4">
-                <div className="spinner-border text-secondary" />
-                <p className="text-muted mt-2">Loading threads...</p>
-              </div>
-            ) : (
-              filteredThreads.map((t) => (
-                <Card
-                  key={t.id}
-                  className={`p-3 mb-2 shadow-sm thread_card border ${
-                    selectedThread?.id === t.id ? "border-primary" : ""
-                  }`}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handlethreadhistory(t)}
-                >
-                  <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
-                    <div className="flex-grow-1 thread_title">
-                      <h6
-                        className="fw-bold mb-1 text-truncate"
-                        style={{ maxWidth: "100%" }}
-                      >
-                        {t.title?.length > 28
-                          ? t.title.slice(0, 28) + "..."
-                          : t.title}
-                      </h6>
-                    </div>
-
-                    <div className="thread_btn d-flex flex-row flex-md-column align-items-center text-end gap-2">
-                      <button
-                        className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
-                        style={{ width: 32, height: 30, padding: 0 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteThread(t.id);
-                        }}
-                      >
-                        {deletingId === t.id ? (
-                          <Spinner
-                            animation="border"
-                            size="sm"
-                            style={{ width: "14px", height: "14px" }}
-                          />
-                        ) : (
-                          <i
-                            className="bi bi-trash"
-                            style={{ fontSize: 14 }}
-                          ></i>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="d-flex justify-content-between align-content-center">
-                    <span className="text-center" style={{ fontSize: 14 }}>
-                      {t.author_name}
-                    </span>
-                    <span>|</span>
-                    <span className="text-center " style={{ fontSize: 14 }}>
-                      last thought at{" "}
-                      {t.last_thought_at
-                        ? formatRelativeDate(t.last_thought_at)
-                        : "-"}
-                    </span>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div
-          className="col-lg-9 col-12 d-flex flex-column p-3"
-          style={{
-            overflow: "hidden",
-            height: "100%",
-          }}
-        >
-          {!selectedThread ? (
-            <div
-              className="d-flex justify-content-center align-items-center"
-              style={{ height: "100%", width: "100%" }}
-            >
-              <h5 className="text-muted m-0">
-                Select a thread to view details
-              </h5>
+          {loadingThreads ? (
+            <div className="text-center py-4">
+              <div className="spinner-border text-secondary" />
+              <p className="text-muted mt-2">Loading threads...</p>
             </div>
           ) : (
-            <>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h3 className="fw-bold m-0">{selectedThread.title}</h3>
-                <span className="text-muted">
-                  {selectedThread.thought_count || 0} thoughts
-                </span>
-              </div>
-              <hr />
-
-              <div
-                style={{
-                  flexGrow: 1,
-                  overflowY: "auto",
-                }}
-                className="hide-scrollbar mb-3"
+            filteredThreads.map((t) => (
+              <Card
+                key={t.id}
+                className={`p-3 mb-2 shadow-sm thread_card border ${
+                  selectedThread?.id === t.id ? "border-primary" : ""
+                }`}
+                style={{ cursor: "pointer" }}
+                onClick={() => handlethreadhistory(t)}
               >
-                {loadingHistory ? (
-                  <div
-                    className="d-flex justify-content-center align-items-center"
-                    style={{ height: "100%", width: "100%" }}
-                  >
-                    <div className="text-center">
-                      <Spinner animation="border" variant="secondary" />
-                      <p className="text-muted mt-2">Loading Thoughts...</p>
-                    </div>
+                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start pb-2">
+                  <div className="flex-grow-1 thread_title">
+                    <h6
+                      className="fw-bold mb-1 text-truncate"
+                      style={{ maxWidth: "100%" }}
+                    >
+                      {t.author_name}
+                    </h6>
                   </div>
-                ) : threadMessages.length === 0 ? (
-                  <div
-                    className="d-flex justify-content-center align-items-center"
-                    style={{ height: "100%", width: "100%" }}
-                  >
-                    <div className="text-center">
-                      <i className="bi bi-chat-left-dots fs-1 text-muted mb-2"></i>
-                      <p className="text-muted m-0">No thoughts yet</p>
-                      <p className="text-muted small">
-                        Be the first to start the conversation!
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="d-flex flex-column">
-                    {threadMessages.map((msg) => (
-                      <Card
-                        key={msg.id}
-                        className={`p-3 mb-3 shadow-sm ${
-                          msg.deleted ? "border-danger bg-light" : ""
-                        } ${
-                          msg.author_role === "admin"
-                            ? "admin-thread"
-                            : "user-thread"
-                        }`}
-                      >
-                        <div className="d-flex justify-content-between align-items-start mb-2">
-                          <h6
-                            className={`fw-bold mb-0 ${
-                              msg.author_role === "admin" ? "text-primary" : ""
-                            }`}
-                          >
-                            {msg.author_name || "Unknown User"}
-                            {msg.author_role === "admin" && (
-                              <span className="badge bg-primary ms-2">
-                                Admin
-                              </span>
-                            )}
-                          </h6>
-                          <span className="text-muted small">
-                            {new Date(msg.created_at).toLocaleString()}
-                          </span>
-                        </div>
 
-                        {msg.deleted ? (
-                          <p className="text-danger fst-italic mb-2">
-                            This message was deleted.
-                          </p>
-                        ) : (
-                          <>
-                            <p
-                              className="mb-2"
-                              style={{ whiteSpace: "pre-line" }}
-                            >
-                              {msg.content}
-                            </p>
-
-                            {msg.has_file && getFileDisplay(msg)}
-
-                            <div className="d-flex justify-content-end mt-3">
-                              {(userdata.role === "admin" ||
-                                Number(msg.author_uid) === userdata?.id) && (
-                                <div className="d-flex gap-2">
-                                  <button
-                                    className="btn btn-sm btn-outline-primary"
-                                    onClick={() =>
-                                      handleEdit(msg.id, msg.content, msg)
-                                    }
-                                  >
-                                    <i className="bi bi-pencil-square"></i>
-                                  </button>
-
-                                  <button
-                                    className="btn btn-sm btn-outline-danger d-flex align-items-center"
-                                    onClick={() =>
-                                      handleDelete(selectedThread.id, msg.id)
-                                    }
-                                    disabled={loadingId === msg.id}
-                                  >
-                                    {loadingId === msg.id ? (
-                                      <>
-                                        <Spinner animation="border" size="sm" />
-                                      </>
-                                    ) : (
-                                      <>
-                                        <i className="bi bi-trash"></i>
-                                      </>
-                                    )}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </>
-                        )}
-                      </Card>
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </div>
-                )}
-              </div>
-
-              <div
-                style={{
-                  position: "sticky",
-                  bottom: 0,
-                  zIndex: 10,
-                }}
-              >
-                {selectedFilePreview && (
-                  <div className="mb-3 p-3 bg-light border rounded d-flex justify-content-between align-items-center">
-                    <div className="d-flex align-items-center">
-                      <i
-                        className={`${getFileIcon(selectedFilePreview.type)} me-3`}
-                        style={{ fontSize: "1.5rem" }}
-                      ></i>
-                      <div>
-                        <div className="fw-semibold">
-                          {selectedFilePreview.name}
-                        </div>
-                        <div className="text-muted small">
-                          {selectedFilePreview.size} MB •{" "}
-                          {isExistingFile
-                            ? "Already attached"
-                            : "Ready to send"}
-                        </div>
-                      </div>
-                    </div>
-
+                  <div className="thread_btn d-flex flex-row flex-md-column align-items-center text-end gap-2">
                     <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => {
-                        setSelectedFile(null);
-                        setSelectedFilePreview(null);
-                        setIsExistingFile(false);
+                      className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
+                      style={{ width: 32, height: 30, padding: 0 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteThread(t.id);
                       }}
                     >
-                      <i className="bi bi-x"></i>
+                      {deletingId === t.id ? (
+                        <Spinner
+                          animation="border"
+                          size="sm"
+                          style={{ width: "14px", height: "14px" }}
+                        />
+                      ) : (
+                        <i className="bi bi-trash" style={{ fontSize: 14 }}></i>
+                      )}
                     </button>
                   </div>
-                )}
-
-                <div className="d-flex align-items-center">
-                  <label
-                    className="btn btn-outline-secondary me-2 d-flex align-items-center justify-content-center"
-                    style={{ width: "42px", height: "42px" }}
-                    title="Attach file"
-                  >
-                    <i className="bi bi-paperclip"></i>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      hidden
-                      accept="image/*,.pdf,.doc,.docx"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
-                  <Form.Control
-                    type="text"
-                    placeholder={
-                      editingThoughtId
-                        ? "Editing thought..."
-                        : "Type your thought here..."
-                    }
-                    className="flex-grow-1 me-2"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                  />
-                  <button
-                    className="btn btn-secondary rounded-circle d-flex justify-content-center align-items-center"
-                    onClick={handleSend}
-                    disabled={sending || (!newMessage.trim() && !selectedFile)}
-                    style={{ width: "42px", height: "42px" }}
-                    title="Send"
-                  >
-                    {sending ? (
-                      <div className="spinner-border spinner-border-sm text-light"></div>
-                    ) : (
-                      <i className="bi bi-send-fill"></i>
-                    )}
-                  </button>
                 </div>
-              </div>
-            </>
+                <div className="d-flex justify-content-between align-content-center">
+                  <span className="text-center" style={{ fontSize: 14 }}>
+                    {t.title?.length > 28
+                      ? t.title.slice(0, 28) + "..."
+                      : t.title}
+                  </span>
+                  {/* <span>|</span> */}
+                  <span className="text-center " style={{ fontSize: 14 }}>
+                    last thought at{" "}
+                    {t.last_thought_at
+                      ? formatRelativeDate(t.last_thought_at)
+                      : "-"}
+                  </span>
+                </div>
+              </Card>
+            ))
           )}
         </div>
-      </div>
+      ) : (
+        <div
+          className="d-flex flex-column p-3"
+          style={{ height: "100vh", overflow: "hidden" }}
+        >
+          <div className="d-flex align-items-center mb-3 mx-3 mx-md-0">
+            <Button
+              variant="link"
+              className="bg-dark text-white d-flex align-items-center justify-content-center mx-2"
+              onClick={() => setCurrentView("list")}
+              style={{ fontSize: "1.0rem", color: "#6c757d" }}
+            >
+              <i className="bi bi-arrow-left"></i>
+            </Button>
+            <h3 className="fw-bold m-0 text-truncate">
+              {selectedThread?.title}
+            </h3>
+            <span className="text-muted ms-auto">
+              {selectedThread?.thought_count || 0} thoughts
+            </span>
+          </div>
+          <hr />
 
+          <div
+            style={{
+              flexGrow: 1,
+              overflowY: "auto",
+            }}
+            className="hide-scrollbar mb-3"
+          >
+            {loadingHistory ? (
+              <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: "100%", width: "100%" }}
+              >
+                <div className="text-center">
+                  <Spinner animation="border" variant="secondary" />
+                  <p className="text-muted mt-2">Loading Thoughts...</p>
+                </div>
+              </div>
+            ) : threadMessages.length === 0 ? (
+              <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: "100%", width: "100%" }}
+              >
+                <div className="text-center">
+                  <i className="bi bi-chat-left-dots fs-1 text-muted mb-2"></i>
+                  <p className="text-muted m-0">No thoughts yet</p>
+                  <p className="text-muted small">
+                    Be the first to start the conversation!
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="d-flex flex-column">
+                {threadMessages.map((msg) => (
+                  <Card
+                    key={msg.id}
+                    className={`p-3 mb-3 shadow-sm ${
+                      msg.deleted ? "border-danger bg-light" : ""
+                    } ${
+                      msg.author_role === "admin"
+                        ? "admin-thread"
+                        : "user-thread"
+                    }`}
+                  >
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <h6
+                        className={`fw-bold mb-0 ${
+                          msg.author_role === "admin" ? "text-primary" : ""
+                        }`}
+                      >
+                        {msg.author_name || "Unknown User"}
+                        {msg.author_role === "admin" && (
+                          <span className="badge bg-primary ms-2">Admin</span>
+                        )}
+                      </h6>
+                      <span className="text-muted small">
+                        {new Date(msg.created_at).toLocaleString()}
+                      </span>
+                    </div>
+
+                    {msg.deleted ? (
+                      <p className="text-danger fst-italic mb-2">
+                        This message was deleted.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="mb-2" style={{ whiteSpace: "pre-line" }}>
+                          {msg.content}
+                        </p>
+
+                        {msg.has_file && getFileDisplay(msg)}
+
+                        <div className="d-flex justify-content-end mt-3">
+                          {(userdata.role === "admin" ||
+                            Number(msg.author_uid) === userdata?.id) && (
+                            <div className="d-flex gap-2">
+                              <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() =>
+                                  handleEdit(msg.id, msg.content, msg)
+                                }
+                              >
+                                <i className="bi bi-pencil-square"></i>
+                              </button>
+
+                              <button
+                                className="btn btn-sm btn-outline-danger d-flex align-items-center"
+                                onClick={() =>
+                                  handleDelete(selectedThread.id, msg.id)
+                                }
+                                disabled={loadingId === msg.id}
+                              >
+                                {loadingId === msg.id ? (
+                                  <>
+                                    <Spinner animation="border" size="sm" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <i className="bi bi-trash"></i>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </Card>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+
+          {/* Input area (sticky at bottom) */}
+          <div
+            style={{
+              position: "sticky",
+              bottom: 0,
+              zIndex: 10,
+            }}
+          >
+            {selectedFilePreview && (
+              <div className="mb-3 p-3 bg-light border rounded d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                  <i
+                    className={`${getFileIcon(selectedFilePreview.type)} me-3`}
+                    style={{ fontSize: "1.5rem" }}
+                  ></i>
+                  <div>
+                    <div className="fw-semibold">
+                      {selectedFilePreview.name}
+                    </div>
+                    <div className="text-muted small">
+                      {selectedFilePreview.size} MB •{" "}
+                      {isExistingFile ? "Already attached" : "Ready to send"}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setSelectedFilePreview(null);
+                    setIsExistingFile(false);
+                  }}
+                >
+                  <i className="bi bi-x"></i>
+                </button>
+              </div>
+            )}
+
+            <div className="d-flex align-items-center">
+              <label
+                className="btn btn-outline-secondary me-2 d-flex align-items-center justify-content-center"
+                style={{ width: "42px", height: "42px" }}
+                title="Attach file"
+              >
+                <i className="bi bi-paperclip"></i>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  hidden
+                  accept="image/*,.pdf,.doc,.docx"
+                  onChange={handleFileSelect}
+                />
+              </label>
+              <Form.Control
+                type="text"
+                placeholder={
+                  editingThoughtId
+                    ? "Editing thought..."
+                    : "Type your thought here..."
+                }
+                className="flex-grow-1 me-2"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+              />
+              <button
+                className="btn btn-secondary rounded-circle d-flex justify-content-center align-items-center"
+                onClick={handleSend}
+                disabled={sending || (!newMessage.trim() && !selectedFile)}
+                style={{ width: "42px", height: "42px" }}
+                title="Send"
+              >
+                {sending ? (
+                  <div className="spinner-border spinner-border-sm text-light"></div>
+                ) : (
+                  <i className="bi bi-send-fill"></i>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Thread Modal */}
       <Modal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
@@ -771,6 +669,7 @@ export const PortfolioForum = () => {
         </Modal.Footer>
       </Modal>
 
+      {/* Create Thread Modal */}
       <Modal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}

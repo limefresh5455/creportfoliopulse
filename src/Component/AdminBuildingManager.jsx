@@ -84,12 +84,11 @@ export const AdminBuildingManager = ({
       )}
 
       <div
-        className="text-center bg-white rounded shadow-sm py-3 mb-4"
+        className="text-center rounded shadow-sm py-3 mb-4"
         style={{
-          position: "sticky",
+          // position: "sticky",
           top: 0,
           zIndex: 10,
-          borderBottom: "1px solid #dee2e6",
         }}
       >
         <h4 className="fw-bold">{heading}</h4>

@@ -11,9 +11,9 @@ const S = {
     height: "100dvh",
     width: "100%",
     margin: "0 auto",
-    background: "#111B21",
+    background: "var(--bg-primary)",
     fontFamily: "'Segoe UI', Helvetica, Arial, sans-serif",
-    color: "#E9EDEF",
+    color: "var(--text-primary)",
     overflow: "hidden",
   },
 
@@ -22,7 +22,7 @@ const S = {
     alignItems: "center",
     gap: 12,
     padding: "10px 16px",
-    background: "#202C33",
+    background: "var(--chat-header-bg)",
     minHeight: 56,
     flexShrink: 0,
   },
@@ -30,7 +30,7 @@ const S = {
     background: "none",
     border: "none",
     cursor: "pointer",
-    color: "#AEBAC1",
+    color: "var(--text-secondary)",
     padding: 6,
     borderRadius: "50%",
     display: "flex",
@@ -43,17 +43,17 @@ const S = {
   headerTitle: {
     fontSize: 19,
     fontWeight: 600,
-    color: "#E9EDEF",
+    color: "var(--text-primary)",
     lineHeight: 1.2,
   },
   headerSub: {
     fontSize: 13,
-    color: "#8696A0",
+    color: "var(--text-secondary)",
     marginTop: 1,
   },
   badge: {
-    background: "#1F2C34",
-    color: "#00A884",
+    background: "var(--bg-secondary)",
+    color: "var(--accent-color)",
     padding: "4px 12px",
     borderRadius: 20,
     fontSize: 13,
@@ -63,8 +63,8 @@ const S = {
 
   inputSection: {
     padding: "10px 16px 8px",
-    background: "#202C33",
-    borderBottom: "1px solid #1F2C34",
+    background: "var(--chat-header-bg)",
+    borderBottom: "1px solid var(--border-color)",
     flexShrink: 0,
     display: "flex",
     flexDirection: "column",
@@ -73,7 +73,7 @@ const S = {
   inputWrap: {
     display: "flex",
     alignItems: "center",
-    background: "#111B21",
+    background: "var(--bg-primary)",
     borderRadius: 8,
     padding: "8px 12px",
     gap: 10,
@@ -83,7 +83,7 @@ const S = {
     background: "none",
     border: "none",
     outline: "none",
-    color: "#E9EDEF",
+    color: "var(--text-primary)",
     fontSize: 15,
     caretColor: "#00A884",
   },
@@ -102,19 +102,19 @@ const S = {
     flexWrap: "wrap",
     gap: 6,
     padding: "8px 14px",
-    background: "#1A2630",
-    borderBottom: "1px solid #1F2C34",
+    background: "var(--chat-header-bg)",
+    borderBottom: "1px solid var(--border-color)",
     flexShrink: 0,
   },
   chip: {
     display: "flex",
     alignItems: "center",
     gap: 6,
-    background: "#2A3942",
+    background: "var(--bg-secondary)",
     borderRadius: 20,
     padding: "4px 10px 4px 6px",
     fontSize: 13,
-    color: "#E9EDEF",
+    color: "var(--text-primary)",
     animation: "chipIn 0.15s ease",
   },
   chipAvatar: {
@@ -131,7 +131,7 @@ const S = {
   },
   chipRemove: {
     cursor: "pointer",
-    color: "#8696A0",
+    color: "var(--text-secondary)",
     fontSize: 16,
     lineHeight: 1,
     fontWeight: 600,
@@ -142,7 +142,7 @@ const S = {
     padding: "10px 16px 4px",
     fontSize: 12,
     fontWeight: 600,
-    color: "#00A884",
+    color: "var(--accent-color)",
     letterSpacing: 0.5,
     textTransform: "uppercase",
     flexShrink: 0,
@@ -160,13 +160,13 @@ const S = {
     padding: "10px 16px",
     gap: 14,
     cursor: "pointer",
-    background: selected ? "#2A3942" : "transparent",
+    background: selected ? "var(--bg-secondary)" : "transparent",
     border: "none",
-    borderBottom: "1px solid #1F2C34",
+    borderBottom: "1px solid var(--border-color)",
     width: "100%",
     textAlign: "left",
     transition: "background 0.15s",
-    color: "#E9EDEF",
+    color: "var(--text-primary)",
   }),
 
   avatar: (color) => ({
@@ -203,14 +203,14 @@ const S = {
   name: {
     fontSize: 16,
     fontWeight: 500,
-    color: "#E9EDEF",
+    color: "var(--text-primary)",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
   email: {
     fontSize: 13,
-    color: "#8696A0",
+    color: "var(--text-secondary)",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -229,14 +229,14 @@ const S = {
     height: 50,
     minWidth: 50,
     borderRadius: "50%",
-    background: "#1F2C34",
+    background: "var(--border-color)",
     animation: "pulse 1.5s infinite",
   },
   skelLines: { flex: 1, display: "flex", flexDirection: "column", gap: 8 },
   skelLine: (w) => ({
     height: 12,
     borderRadius: 6,
-    background: "#1F2C34",
+    background: "var(--border-color)",
     width: w,
     animation: "pulse 1.5s infinite",
   }),
@@ -247,7 +247,7 @@ const S = {
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    color: "#8696A0",
+    color: "var(--text-secondary)",
     gap: 12,
     paddingTop: 60,
   },
@@ -255,9 +255,9 @@ const S = {
   emptyText: { fontSize: 15 },
 
   footer: {
-    background: "#202C33",
+    background: "var(--chat-header-bg)",
     padding: "12px 16px",
-    borderTop: "1px solid #1F2C34",
+    borderTop: "1px solid var(--border-color)",
     flexShrink: 0,
   },
   createBtn: (disabled) => ({
@@ -280,7 +280,7 @@ const S = {
   hintText: {
     textAlign: "center",
     fontSize: 12,
-    color: "#8696A0",
+    color: "var(--text-secondary)",
     marginTop: 8,
   },
   hintError: {
@@ -297,7 +297,7 @@ const BackIcon = () => (
     height="22"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#AEBAC1"
+    stroke="currentColor"
     strokeWidth="2.5"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -311,7 +311,7 @@ const SearchIcon = () => (
     height="18"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#8696A0"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
   >
@@ -320,7 +320,7 @@ const SearchIcon = () => (
   </svg>
 );
 const GroupIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="#8696A0">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -333,7 +333,7 @@ const CheckIcon = () => (
     height="13"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#fff"
+    stroke="currentColor"
     strokeWidth="3"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -347,7 +347,7 @@ const SpinnerIcon = () => (
     height="18"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#fff"
+    stroke="currentColor"
     strokeWidth="2.5"
     strokeLinecap="round"
     style={{ animation: "spin 0.8s linear infinite" }}
@@ -372,11 +372,11 @@ const avatarColor = (id) =>
 const getUserId = (user, index) =>
   String(
     user.user_id ??
-      user.id ??
-      user._id ??
-      user.admin_id ??
-      user.userId ??
-      index,
+    user.id ??
+    user._id ??
+    user.admin_id ??
+    user.userId ??
+    index,
   );
 
 export const CreateGroupScreen = () => {

@@ -47,7 +47,6 @@ export const Notes = () => {
 
   console.log(sortedNotes, "sortedNotes");
 
-
   const openNewNote = () => {
     setIsEditing(false);
     setCurrentNote({
@@ -58,7 +57,6 @@ export const Notes = () => {
     });
     setShowModal(true);
   };
-
 
   const openEditNote = async (note) => {
     setIsEditing(true);
@@ -86,7 +84,7 @@ export const Notes = () => {
       formData.append("title", currentNote.title?.trim() || "Untitled");
       formData.append("content", currentNote.content?.trim() || "");
 
-        if (currentNote.file) {
+      if (currentNote.file) {
         formData.append("file", currentNote.file);
       }
 
@@ -95,10 +93,9 @@ export const Notes = () => {
           updateNoteApi({
             noteId: currentNote.id,
             data: formData,
-          })
+          }),
         ).unwrap();
-      }
-      else {
+      } else {
         await dispatch(createNoteApi(formData)).unwrap();
       }
 
@@ -109,7 +106,6 @@ export const Notes = () => {
       setSaving(false);
     }
   };
-
 
   const handleDelete = async (noteId) => {
     try {
@@ -124,7 +120,7 @@ export const Notes = () => {
 
   function formatDate(date) {
     if (!date) return "";
-    return new Date(date).toLocaleString();     
+    return new Date(date).toLocaleString();
   }
 
   return (
@@ -156,14 +152,19 @@ export const Notes = () => {
         ) : (
           <div className="list-group">
             {sortedNotes.map((note) => (
-              <div key={note.id} className="list-group-item list-group-item-action">
+              <div
+                key={note.id}
+                className="list-group-item list-group-item-action"
+              >
                 <div className="d-flex flex-column flex-md-row w-100 justify-content-between">
                   <h6
                     className="mb-1"
                     style={{ cursor: "pointer" }}
                     onClick={() => openEditNote(note)}
                   >
-                    {note.title?.length > 28 ? note.title.slice(0, 28) + "..." : note.title}
+                    {note.title?.length > 28
+                      ? note.title.slice(0, 28) + "..."
+                      : note.title}
                   </h6>
 
                   <small className="text-muted">
@@ -171,10 +172,12 @@ export const Notes = () => {
                   </small>
                 </div>
 
-                <p className="mb-1 text-truncate" onClick={() => openEditNote(note)}>
+                <p
+                  className="mb-1 text-truncate"
+                  onClick={() => openEditNote(note)}
+                >
                   {note.content}
                 </p>
-
 
                 {note.files && note.files.length > 0 && (
                   <div className="mt-2">
@@ -183,12 +186,14 @@ export const Notes = () => {
                         key={file.id}
                         className="d-flex justify-content-between align-items-center mb-1 p-2 border rounded"
                       >
-                        <div className="text-truncate" style={{ maxWidth: "80%" }}>
+                        <div
+                          className="text-truncate"
+                          style={{ maxWidth: "80%" }}
+                        >
                           <i className="bi bi-file-earmark-text me-2"></i>
                           {file.filename}
                         </div>
                         <div className="d-flex gap-2">
-
                           <a
                             href={file.url}
                             target="_blank"
@@ -197,9 +202,6 @@ export const Notes = () => {
                           >
                             <i className="bi bi-download"></i>
                           </a>
-
-
-                          
                         </div>
                       </div>
                     ))}
@@ -222,14 +224,15 @@ export const Notes = () => {
                       <i
                         className="bi bi-trash text-danger"
                         style={{ cursor: "pointer", fontSize: 18 }}
-                        onClick={() => setConfirmDelete({ show: true, noteId: note.id })}
+                        onClick={() =>
+                          setConfirmDelete({ show: true, noteId: note.id })
+                        }
                       ></i>
                     )}
                   </div>
                 </div>
               </div>
             ))}
-
           </div>
         )}
 
@@ -250,17 +253,18 @@ export const Notes = () => {
                   }
                 />
               </FloatingLabel>
-
-              <FloatingLabel label="Note">
-                <Form.Control
-                  as="textarea"
-                  style={{ height: "200px" }}
-                  value={currentNote.content}
-                  onChange={(e) =>
-                    setCurrentNote((p) => ({ ...p, content: e.target.value }))
-                  }
-                />
-              </FloatingLabel>
+              <div className="mb-3">
+                <FloatingLabel label="Note">
+                  <Form.Control
+                    as="textarea"
+                    style={{ height: "200px" }}
+                    value={currentNote.content}
+                    onChange={(e) =>
+                      setCurrentNote((p) => ({ ...p, content: e.target.value }))
+                    }
+                  />
+                </FloatingLabel>
+              </div>
               {!isEditing && (
                 <>
                   <Form.Label>Attach document</Form.Label>
@@ -284,9 +288,7 @@ export const Notes = () => {
                 </small>
               )}
 
-            
-
-              <div className="mt-2 text-muted small">
+              <div className="mt-2 text-light small">
                 Tip: Only you can see your notes.
               </div>
             </Modal.Body>

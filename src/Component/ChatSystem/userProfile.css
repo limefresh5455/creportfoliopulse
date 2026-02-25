@@ -11,7 +11,8 @@
 .profile-panel {
   width: 100%;
   max-width: 600px;
-  background: #fff;
+  background: var(--card-bg);
+  color: var(--text-primary);
   padding: 10px;
   border-radius: 0 0 10px 10px;
   animation: slideDown 0.35s ease forwards;
@@ -25,6 +26,7 @@
     transform: translateY(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -57,6 +59,7 @@
   border: none;
   font-size: 22px;
   cursor: pointer;
+  color: var(--text-primary);
 }
 
 .profile-info-text {
@@ -83,9 +86,9 @@
     gap: 10px;
   }
 
-  .profile-header {
+  /* .profile-header {
     position: absolute;
     top: 10px;
     left: 10px;
-  }
+  } */
 }

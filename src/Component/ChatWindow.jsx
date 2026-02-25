@@ -354,7 +354,7 @@ export const ChatWindow = ({
               </div>
 
               <h5
-                className="chat-title text-muted mb-0 text-truncate address-title position-absolute start-50 translate-middle-x text-center"
+                className="chat-title mb-0 text-truncate address-title position-absolute start-50 translate-middle-x text-center"
                 title={address}
               >
                 {heading}
@@ -393,7 +393,7 @@ export const ChatWindow = ({
             </div>
           </div>
 
-          <div className="flex-grow-1 overflow-auto p-3 bg-light rounded mb-2 hide-scrollbar">
+          <div className="flex-grow-1 overflow-auto p-3 rounded mb-2 hide-scrollbar">
             {isLoading ? (
               <div
                 className="d-flex justify-content-center align-items-center text-muted w-100"
@@ -411,29 +411,26 @@ export const ChatWindow = ({
                     {messages.map((msg, i) => (
                       <div
                         key={i}
-                        className={`mb-2 small ${
-                          msg.sender === "Admin" ? "text-start" : "text-end"
-                        }`}
+                        className={`mb-2 small ${msg.sender === "Admin" ? "text-start" : "text-end"
+                          }`}
                       >
                         <div
-                          className={`d-inline-block px-3 py-2 position-relative responsive-box ${
-                            msg.sender === "Admin"
-                              ? ""
-                              : "bg-secondary text-light"
-                          }`}
+                          className={`d-inline-block px-3 py-2 position-relative responsive-box ${msg.sender === "Admin"
+                            ? "bg-secondary-theme "
+                            : "bg-chat-send"
+                            }`}
                         >
                           {msg.sender === "Admin" ? (
                             <>
                               <i
-                                className={`bi ${
-                                  speakingIndex === i
-                                    ? "bi-volume-up-fill"
-                                    : "bi-volume-mute"
-                                } ms-2`}
+                                className={`bi ${speakingIndex === i
+                                  ? "bi-volume-up-fill"
+                                  : "bi-volume-mute"
+                                  } ms-2`}
                                 style={{
                                   cursor: "pointer",
                                   fontSize: "1rem",
-                                  color: speakingIndex === i ? "#000" : "#ccc",
+                                  color: speakingIndex === i ? "var(--accent-color)" : "var(--text-secondary)",
                                   position: "absolute",
                                   right: "8px",
                                   bottom: "18px",
@@ -519,7 +516,7 @@ export const ChatWindow = ({
           </div>
 
           <div className="pt-2 pb-1">
-            <div className="d-flex align-items-end rounded-pill py-2 px-3 bg-white shadow-sm border">
+            <div className="d-flex align-items-end rounded-pill py-2 px-3 border chat-input-wrapper">
               <textarea
                 ref={textareaRef}
                 rows={1}
@@ -550,16 +547,14 @@ export const ChatWindow = ({
                 </button>
               ) : (
                 <button
-                  className={`btn rounded-circle ${
-                    isRecording ? "btn-danger" : "btn-outline-secondary"
-                  }`}
+                  className={`btn rounded-circle ${isRecording ? "btn-danger" : "btn-outline-secondary"
+                    }`}
                   onClick={startRecording}
                   disabled={isSending || isLoading || !sessionId}
                 >
                   <i
-                    className={`bi ${
-                      isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
-                    }`}
+                    className={`bi ${isRecording ? "bi-mic-mute-fill" : "bi-mic-fill"
+                      }`}
                   ></i>
                 </button>
               )}

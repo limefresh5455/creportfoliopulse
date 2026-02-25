@@ -2,16 +2,16 @@
   display: flex;
   flex-direction: column;
   padding: 10px;
-  border-top: 1px solid #e5e7eb;
-  background: #fff;
+  border-top: 1px solid var(--border-color);
+  background: var(--chat-input-bg);
 }
 
 .attachment-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 8px 12px;
   margin-bottom: 8px;
@@ -50,6 +50,7 @@
   cursor: pointer;
   color: #666;
 }
+
 .attachment-remove:hover {
   color: #ef4444;
 }
@@ -66,13 +67,14 @@
 }
 
 .action-btn {
-  background: #f3f4f6;
+  background: var(--bg-secondary);
   border: none;
   border-radius: 10px;
   padding: 1px;
   cursor: pointer;
   transition: 0.2s;
 }
+
 .action-btn:hover {
   background: #e5e7eb;
 }
@@ -84,13 +86,16 @@
 .message-input {
   flex: 1;
   resize: none;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 10px 14px;
   outline: none;
+  background: transparent;
+  color: var(--text-primary);
   font-size: 14px;
   max-height: 120px;
 }
+
 .message-input:focus {
   border-color: #3b82f6;
 }
@@ -120,6 +125,7 @@
 .spinning {
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -131,6 +137,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

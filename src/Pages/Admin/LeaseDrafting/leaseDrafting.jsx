@@ -273,8 +273,7 @@ export const LeaseDraftingUpload = () => {
         </p>
       </div>
 
-
-      <div className="border border-2 rounded-3 py-5 text-center mb-4 bg-light">
+      <div className="border border-2 rounded-3 py-5 text-center mb-4">
         <i className="bi bi-upload fs-1 text-primary"></i>
         <h6 className="fw-semibold mt-3">Upload Letter of Intent</h6>
         <p className="text-muted mb-3">

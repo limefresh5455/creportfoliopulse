@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { SessionList } from "../Pages/User/Session/sessionList";
 import { SidebarSkeleton } from "./SidebarSkeleton";
+import ThemeToggle from "./ThemeToggle";
 
 export const Sidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
@@ -167,9 +168,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         >
           <span>{label}</span>
           <i
-            className={`bi ms-2 ${
-              openMenu === menuKey ? "bi-chevron-down" : "bi-chevron-right"
-            }`}
+            className={`bi ms-2 ${openMenu === menuKey ? "bi-chevron-down" : "bi-chevron-right"
+              }`}
           />
         </li>
       );
@@ -685,12 +685,12 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
   return (
     <>
       <aside
-        className={`sidebar-wrapper d-flex flex-column bg-dark text-white border-end ${
-          isMobile && !collapsed ? "sidebar-mobile-open" : ""
-        }`}
+        className={`sidebar-wrapper d-flex flex-column border-end ${isMobile && !collapsed ? "sidebar-mobile-open" : ""
+          }`}
+        style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--text-primary)' }}
       >
         <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
-          {!collapsed && <span className="mb-0 fs-5">creportfoliopulse</span>}
+          {!collapsed && <span className="mb-0 fs-5 creportfoliopulse">creportfoliopulse</span>}
           {isMobile && (
             <button
               className="btn btn-sm btn-outline-light"
@@ -698,11 +698,10 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <i
-                className={`bi ${
-                  collapsed
-                    ? "bi-chevron-double-right"
-                    : "bi-chevron-double-left"
-                }`}
+                className={`bi ${collapsed
+                  ? "bi-chevron-double-right"
+                  : "bi-chevron-double-left"
+                  }`}
               />
             </button>
           )}
@@ -726,6 +725,9 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
         </div>
 
         <div className="mt-auto p-3 border-top">
+          <div className="mb-3 d-flex justify-content-center">
+            <ThemeToggle collapsed={collapsed} />
+          </div>
           <button
             onClick={handleLogout}
             className="btn btn-outline-danger w-100"
@@ -746,9 +748,8 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <i
-              className={`bi ${
-                collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"
-              }`}
+              className={`bi ${collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"
+                }`}
             />
           </button>
         )}

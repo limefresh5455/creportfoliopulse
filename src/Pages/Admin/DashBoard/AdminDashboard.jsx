@@ -37,12 +37,7 @@ export const AdminDashboard = () => {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            className="card border-0 shadow-sm rounded-4 h-100"
-            style={{
-              background: "linear-gradient(to right, #f3f6ff, #f8faff)",
-            }}
-          >
+          <div className="card border-0 shadow-sm rounded-4 h-100">
             <div className="card-body d-flex align-items-center">
               <div
                 className="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
@@ -61,12 +56,7 @@ export const AdminDashboard = () => {
         </div>
 
         <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            className="card border-0 shadow-sm rounded-4 h-100"
-            style={{
-              background: "linear-gradient(to right, #f3fff6, #f8fffb)",
-            }}
-          >
+          <div className="card border-0 shadow-sm rounded-4 h-100">
             <div className="card-body d-flex align-items-center">
               <div
                 className="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-3"
@@ -85,12 +75,7 @@ export const AdminDashboard = () => {
         </div>
 
         <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            className="card border-0 shadow-sm rounded-4 h-100"
-            style={{
-              background: "linear-gradient(to right, #f3f6ff, #f8faff)",
-            }}
-          >
+          <div className="card border-0 shadow-sm rounded-4 h-100">
             <div className="card-body d-flex align-items-center">
               <div
                 className="rounded-3 bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center me-3"
@@ -109,12 +94,7 @@ export const AdminDashboard = () => {
         </div>
 
         <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            className="card border-0 shadow-sm rounded-4 h-100"
-            style={{
-              background: "linear-gradient(to right, #f3fff6, #f8fffb)",
-            }}
-          >
+          <div className="card border-0 shadow-sm rounded-4 h-100">
             <div className="card-body d-flex align-items-center">
               <div
                 className="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-3"
@@ -152,9 +132,8 @@ export const AdminDashboard = () => {
               <h5 className="fw-semibold mb-3">Quick Actions</h5>
               <div className="row g-3">
                 <div className="col-12 col-sm-6">
-                  
                   <button
-                    className="btn btn-outline-dark w-100 py-3"
+                    className="btn btn-outline-secondary w-100 py-3"
                     onClick={handleAIAnalytics}
                   >
                     <TrendingUp size={20} className="me-2" />

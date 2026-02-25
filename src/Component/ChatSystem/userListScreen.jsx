@@ -10,7 +10,7 @@ const BackIcon = () => (
     height="22"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#AEBAC1"
+    stroke="currentColor"
     strokeWidth="2.5"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -25,7 +25,7 @@ const SearchIcon = () => (
     height="18"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#8696A0"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
   >
@@ -99,9 +99,9 @@ export const UserListScreen = () => {
         }
         ::-webkit-scrollbar { width:4px }
         ::-webkit-scrollbar-track { background:transparent }
-        ::-webkit-scrollbar-thumb { background:#2C3E50; border-radius:4px }
-        .user-item:hover { background:#182229 !important }
-        .back-btn:hover  { background:rgba(255,255,255,0.08) !important }
+        ::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px }
+        .user-item:hover { background:var(--bg-secondary) !important }
+        .back-btn:hover  { background:var(--bg-secondary) !important }
         .user-item {
           animation: slideIn 0.2s ease both;
         }

@@ -124,9 +124,8 @@ export const ToursDetails = () => {
     <div>
       <Container
         fluid
-        className="p-4 shadow-sm"
+        className="shadow-sm"
         style={{
-          background: "#f5f7fa",
           borderRadius: "8px",
           minHeight: "100vh",
         }}
@@ -229,7 +228,7 @@ export const ToursDetails = () => {
               <p>
                 <strong>Notes:</strong>
               </p>
-              <p className="text-muted">
+              <p className="">
                 {selectedTour.notes || "No notes available"}
               </p>
             </>

@@ -21,7 +21,6 @@ export const PortfolioVoice = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState(null);
 
-
   useEffect(() => {
     fetchDocuments();
   }, []);
@@ -33,7 +32,7 @@ export const PortfolioVoice = () => {
       const res = await dispatch(
         GeneralInfoSubmit({
           category: "portfolio",
-        })
+        }),
       ).unwrap();
 
       setDocuments(res);
@@ -53,12 +52,12 @@ export const PortfolioVoice = () => {
 
     const MAX_FILE_SIZE_MB = 30;
     const oversizedFiles = selectedFiles.filter(
-      (file) => file.size > MAX_FILE_SIZE_MB * 1024 * 1024
+      (file) => file.size > MAX_FILE_SIZE_MB * 1024 * 1024,
     );
 
     if (oversizedFiles.length > 0) {
       toast.error(
-        "Some files exceed the 30MB size limit. Please upload smaller files."
+        "Some files exceed the 30MB size limit. Please upload smaller files.",
       );
       return;
     }
@@ -73,7 +72,7 @@ export const PortfolioVoice = () => {
     ];
 
     const invalidFiles = selectedFiles.filter(
-      (file) => !ALLOWED_TYPES.includes(file.type)
+      (file) => !ALLOWED_TYPES.includes(file.type),
     );
     if (invalidFiles.length > 0) {
       toast.error("Some files are not supported document types.");
@@ -86,7 +85,7 @@ export const PortfolioVoice = () => {
         UploadDocSubmit({
           files: selectedFiles,
           category: "portfolio",
-        })
+        }),
       ).unwrap();
       await fetchDocuments();
     } catch (error) {
@@ -103,14 +102,11 @@ export const PortfolioVoice = () => {
     try {
       setIsDeleting((prev) => ({ ...prev, [selectedFileId]: true }));
 
-      await dispatch(
-        DeleteDocSubmit({ file_id: selectedFileId })
-      ).unwrap();
+      await dispatch(DeleteDocSubmit({ file_id: selectedFileId })).unwrap();
 
       await fetchDocuments();
     } catch (error) {
       console.error("Failed to delete document:", error);
-
     } finally {
       setIsDeleting((prev) => ({ ...prev, [selectedFileId]: false }));
       setShowConfirm(false);
@@ -118,12 +114,10 @@ export const PortfolioVoice = () => {
     }
   };
 
-
-
   const filteredDocs = documents.filter(
     (doc) =>
       doc.category === "portfolio" &&
-      doc.original_file_name.toLowerCase().includes(search.toLowerCase())
+      doc.original_file_name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const sortedDocs = [...filteredDocs].sort((a, b) => {
@@ -186,7 +180,7 @@ export const PortfolioVoice = () => {
             <h5 className="fw-bold mb-2 mb-md-0">
               <i className="bi bi-file-earmark-text me-2"></i> Document Library
             </h5>
-            <div className="d-flex flex-wrap align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2">
               <span className="badge bg-dark">
                 {documents.length} Documents
               </span>
@@ -213,7 +207,7 @@ export const PortfolioVoice = () => {
                 onClick={() => {
                   setSortBy("size");
                   setSortOrder(
-                    sortBy === "size" && sortOrder === "asc" ? "desc" : "asc"
+                    sortBy === "size" && sortOrder === "asc" ? "desc" : "asc",
                   );
                 }}
               >
@@ -247,9 +241,9 @@ export const PortfolioVoice = () => {
                       <td>
                         {parseFloat(doc.size)
                           ? (doc.size.toLowerCase().includes("kb")
-                            ? parseFloat(doc.size) / 1024
-                            : parseFloat(doc.size)
-                          ).toFixed(2)
+                              ? parseFloat(doc.size) / 1024
+                              : parseFloat(doc.size)
+                            ).toFixed(2)
                           : doc.size}{" "}
                         MB
                       </td>
@@ -264,7 +258,6 @@ export const PortfolioVoice = () => {
                         >
                           Delete
                         </button>
-
                       </td>
                     </tr>
                   ))}
@@ -294,7 +287,6 @@ export const PortfolioVoice = () => {
               <div className="modal-body">
                 <p className="mb-0">
                   Are you sure you want to delete this document?
-
                 </p>
               </div>
 
@@ -318,7 +310,6 @@ export const PortfolioVoice = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

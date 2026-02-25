@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { format, isToday, isYesterday } from "date-fns";
 import axiosInstance from "../../Networking/Admin/APIs/AxiosInstance";
-import "./chatSystem.css";
 import {
   fetchFileUrl,
   fetchMessages,
 } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import "./chatSystem.css";
+import "./userProfile.css";
+import { format, isToday, isYesterday } from "date-fns";
 
 const SpinnerIcon = () => (
   <svg
@@ -14,7 +16,7 @@ const SpinnerIcon = () => (
     height="18"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#fff"
+    stroke="currentColor"
     strokeWidth="2.5"
     strokeLinecap="round"
     style={{ animation: "spin 0.8s linear infinite" }}
@@ -23,7 +25,12 @@ const SpinnerIcon = () => (
   </svg>
 );
 
-export const ChatMessages = ({ messages, myUserId, conversationId }) => {
+export const ChatMessages = ({
+  messages,
+  myUserId,
+  conversationId,
+  highlightedMessageId,
+}) => {
   const dispatch = useDispatch();
 
   const fileUrls = useSelector((s) => s.chatSystemSlice.fileUrls);
@@ -60,7 +67,6 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
     if (!loadingMore && el.scrollTop < 5) {
       setLoadingMore(true);
       const oldHeight = el.scrollHeight;
-      console.log(conversationId, "conversationId in message");
 
       dispatch(fetchMessages({ conversationId, page: page + 1 }))
         .then(() => {
@@ -151,7 +157,7 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
     let arr = [];
 
     msgs.forEach((msg) => {
-      const d = format(new Date(msg.created_at), "yyyy-MM-dd");
+      const d = format(new Date(msg?.created_at), "yyyy-MM-dd");
 
       if (current !== d) {
         if (arr.length) groups.push({ date: current, messages: arr });
@@ -220,13 +226,14 @@ export const ChatMessages = ({ messages, myUserId, conversationId }) => {
               {group.messages.map((msg) => {
                 const isMe = Number(msg.sender_id) === Number(myUserId);
                 const selected = selectedMessages.includes(msg.id);
+                const isHighlighted = msg.id === highlightedMessageId;
 
                 return (
                   <div
                     key={msg.id}
-                    className={`message-row ${isMe ? "me" : "other"} ${
-                      selected ? "selected" : ""
-                    }`}
+                    className={`message-row ${isMe ? "me" : "other"} ${selected ? "selected" : ""
+                      } ${isHighlighted ? "highlight" : ""}`}
+                    data-message-id={msg.id}
                     onClick={() => selectionMode && toggleSelect(msg.id)}
                     onContextMenu={(e) => {
                       e.preventDefault();

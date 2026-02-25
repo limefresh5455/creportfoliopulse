@@ -7,7 +7,9 @@ import {
   fetchMessages,
   leaveGroupApi,
 } from "../../Networking/User/APIs/ChatSystem/chatSystemApi";
+import { getAdminlistApi } from "../../Networking/SuperAdmin/AdminSuperApi";
 import "./chatSystem.css";
+import "./userProfile.css";
 import { toast } from "react-toastify";
 
 export const UserProfile = ({
@@ -20,6 +22,7 @@ export const UserProfile = ({
   participants = [],
   conversationId,
   about = "Hey there! I am using Portfoliopulse.",
+  onSearchClick,
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -30,6 +33,13 @@ export const UserProfile = ({
   const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
   const [fileToDelete, setFileToDelete] = useState(null);
   const [isDeletingFile, setIsDeletingFile] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [removingId, setRemovingId] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const [showUserPicker, setShowUserPicker] = useState(false);
 
   const longPressTimerRef = useRef(null);
 
@@ -52,7 +62,7 @@ export const UserProfile = ({
         dispatch(fetchFileUrl(file.file_id));
       }
     });
-  }, [mediaFiles]);
+  }, [mediaFiles, dispatch, fileLoading]);
 
   useEffect(() => {
     if (open) {
@@ -64,6 +74,68 @@ export const UserProfile = ({
       document.body.style.overflow = "unset";
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!conversationId || !open || !isGroup) return;
+
+    const fetchMembers = async () => {
+      try {
+        setLoadingMembers(true);
+        const res = await axiosInstance.get(
+          `/messenger/conversations/${conversationId}/members`,
+        );
+        setMembers(res.data.members || []);
+      } catch (err) {
+        toast.error("Failed to load members");
+      } finally {
+        setLoadingMembers(false);
+      }
+    };
+
+    fetchMembers();
+  }, [conversationId, open, isGroup]);
+
+  const handleAddMember = async () => {
+    if (!selectedUser) return toast.error("Select a user first");
+
+    try {
+      setAdding(true);
+      await axiosInstance.post(
+        `/messenger/conversations/${conversationId}/add-member`,
+        {},
+        { params: { user_id: selectedUser.id } },
+      );
+
+      toast.success("Member added");
+      setSelectedUser(null);
+
+      const res = await axiosInstance.get(
+        `/messenger/conversations/${conversationId}/members`,
+      );
+      setMembers(res.data.members || []);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to add member");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleRemoveMember = async (id) => {
+    try {
+      setRemovingId(id);
+
+      await axiosInstance.delete(
+        `/messenger/conversations/${conversationId}/remove-member/${id}`,
+      );
+
+      setMembers((prev) => prev.filter((m) => m.user_id !== id));
+      toast.success("Member removed");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to remove member");
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   const startLongPress = (file) => {
     longPressTimerRef.current = setTimeout(() => {
@@ -112,6 +184,7 @@ export const UserProfile = ({
         toast.error(result.payload || "Failed to leave group");
       }
     } catch (err) {
+      toast.error("Failed to leave group");
     } finally {
       setIsLeaving(false);
       setShowExitConfirm(false);
@@ -142,6 +215,21 @@ export const UserProfile = ({
     if (!fileName) return false;
     const ext = fileName.split(".").pop().toLowerCase();
     return ["jpg", "jpeg", "png", "gif", "webp", "bmp"].includes(ext);
+  };
+
+  const AVATAR_COLORS = [
+    "#1E6B5E",
+    "#2C6E8A",
+    "#6B3F8A",
+    "#8A5C2E",
+    "#2E6B3F",
+    "#7A2E2E",
+    "#2E517A",
+    "#5C2E7A",
+  ];
+  const avatarColor = (name = "") => {
+    const idx = (name.charCodeAt(0) || 0) % AVATAR_COLORS.length;
+    return AVATAR_COLORS[idx];
   };
 
   return (
@@ -190,6 +278,72 @@ export const UserProfile = ({
             </div>
           )}
 
+          {isGroup && (
+            <div className="members-section">
+              <div className="members-title">Group Members</div>
+
+              <div className="member-input-box">
+                {selectedUser ? (
+                  <div className="selected-user-pill">
+                    <span className="selected-user-name">
+                      {selectedUser.name}
+                    </span>
+                    <button
+                      className="clear-selection"
+                      onClick={() => setSelectedUser(null)}
+                      title="Clear selection"
+                    >
+                      <i className="ri-close-line" />
+                    </button>
+                  </div>
+                ) : (
+                  <span className="select-placeholder">No user selected</span>
+                )}
+                <button
+                  className="browse-users-btn"
+                  onClick={() => setShowUserPicker(true)}
+                  type="button"
+                  title="Browse users"
+                >
+                  <i className="ri-user-search-line"></i>
+                </button>
+                <button
+                  className="add-member-btn"
+                  onClick={handleAddMember}
+                  disabled={adding || !selectedUser}
+                >
+                  {adding ? "Adding..." : "Add"}
+                </button>
+              </div>
+
+              <div className="member-list">
+                {members.map((m) => (
+                  <div key={m.user_id} className="member-card">
+                    <div className="member-info">
+                      <div className="member-avatar">
+                        {(m.user_name || "U")[0]}
+                      </div>
+                      <div className="member-name">
+                        {m.user_name || `User ${m.user_id}`}
+                        {m.is_me && <span className="me-badge">You</span>}
+                      </div>
+                      <div className="member-email">{m.role}</div>
+                    </div>
+                    {m.role !== "admin" && (
+                      <button
+                        className="remove-member-btn"
+                        onClick={() => handleRemoveMember(m.user_id)}
+                        disabled={removingId === m.user_id}
+                      >
+                        {removingId === m.user_id ? "Removing..." : "Remove"}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="profile-section">
             <div className="profile-section-label">Media, links and docs</div>
             <div className="media-grid">
@@ -204,9 +358,7 @@ export const UserProfile = ({
                     rel="noopener noreferrer"
                     className="media-item"
                     onClick={(e) => {
-                      if (fileToDelete) {
-                        e.preventDefault();
-                      }
+                      if (fileToDelete) e.preventDefault();
                     }}
                     onTouchStart={() => startLongPress(file)}
                     onTouchEnd={cancelLongPress}
@@ -233,12 +385,12 @@ export const UserProfile = ({
             </div>
           </div>
 
-          <div className="profile-section">
-            <button className="profile-action-btn">
+          {/* <div className="profile-section">
+            <button className="profile-action-btn" onClick={onSearchClick}>
               <i className="ri-search-line profile-action-icon" />
               <span>Search in conversation</span>
             </button>
-          </div>
+          </div> */}
 
           <div className="profile-section">
             <button
@@ -252,37 +404,33 @@ export const UserProfile = ({
 
           <div className="profile-section">
             {isGroup ? (
-              <>
-                <button
-                  className="profile-action-btn"
+              <button
+                className="profile-action-btn"
+                style={{ color: "#EA4335" }}
+                onClick={handleExitGroup}
+                disabled={isLeaving}
+              >
+                <i
+                  className={`profile-action-icon ${
+                    isLeaving
+                      ? "ri-loader-4-line spinning"
+                      : "ri-logout-box-r-line"
+                  }`}
                   style={{ color: "#EA4335" }}
-                  onClick={handleExitGroup}
-                  disabled={isLeaving}
-                >
-                  <i
-                    className={`profile-action-icon ${
-                      isLeaving
-                        ? "ri-loader-4-line spinning"
-                        : "ri-logout-box-r-line"
-                    }`}
-                    style={{ color: "#EA4335" }}
-                  />
-                  <span>{isLeaving ? "Leaving..." : "Exit group"}</span>
-                </button>
-              </>
+                />
+                <span>{isLeaving ? "Leaving..." : "Exit group"}</span>
+              </button>
             ) : (
-              <>
-                <button
-                  className="profile-action-btn"
+              <button
+                className="profile-action-btn"
+                style={{ color: "#EA4335" }}
+              >
+                <i
+                  className="ri-user-unfollow-line profile-action-icon"
                   style={{ color: "#EA4335" }}
-                >
-                  <i
-                    className="ri-user-unfollow-line profile-action-icon"
-                    style={{ color: "#EA4335" }}
-                  />
-                  <span>Block {name}</span>
-                </button>
-              </>
+                />
+                <span>Block {name}</span>
+              </button>
             )}
           </div>
         </div>
@@ -341,6 +489,7 @@ export const UserProfile = ({
           </div>
         </div>
       )}
+
       {showDeleteFileModal && fileToDelete && (
         <div
           className="modal-overlay"
@@ -419,6 +568,147 @@ export const UserProfile = ({
           </div>
         </div>
       )}
+
+      {showUserPicker && (
+        <UserPickerModal
+          onClose={() => setShowUserPicker(false)}
+          onSelect={(user) => setSelectedUser(user)}
+        />
+      )}
     </>
+  );
+};
+
+const UserPickerModal = ({ onClose, onSelect }) => {
+  const dispatch = useDispatch();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const data = await dispatch(getAdminlistApi()).unwrap();
+        setUsers(data);
+      } catch (err) {
+        toast.error("Failed to load users");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, [dispatch]);
+
+  const filtered = users.filter((u) =>
+    u.name?.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const AVATAR_COLORS = [
+    "#1E6B5E",
+    "#2C6E8A",
+    "#6B3F8A",
+    "#8A5C2E",
+    "#2E6B3F",
+    "#7A2E2E",
+    "#2E517A",
+    "#5C2E7A",
+  ];
+  const avatarColor = (name = "") => {
+    const idx = (name.charCodeAt(0) || 0) % AVATAR_COLORS.length;
+    return AVATAR_COLORS[idx];
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal-content user-picker-modal"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: "400px", width: "90%" }}
+      >
+        <div className="modal-header">
+          <h3>Select User</h3>
+          <button className="close-btn" onClick={onClose}>
+            <i className="ri-close-line" />
+          </button>
+        </div>
+        <div className="search-wrap" style={{ padding: "12px 16px" }}>
+          <div className="search-inner">
+            <i className="ri-search-line" style={{ color: "#8696A0" }} />
+            <input
+              className="search-input"
+              placeholder="Search name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+        <div
+          className="user-list-modal"
+          style={{ maxHeight: "400px", overflowY: "auto" }}
+        >
+          {loading ? (
+            <div style={{ padding: 20, textAlign: "center" }}>Loading...</div>
+          ) : filtered.length === 0 ? (
+            <div className="empty" style={{ padding: 20, textAlign: "center" }}>
+              No users found
+            </div>
+          ) : (
+            filtered.map((user) => (
+              <button
+                key={user.user_id}
+                className="user-item"
+                onClick={() => {
+                  onSelect({ id: user.user_id, name: user.name });
+                  onClose();
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  padding: "12px 16px",
+                  border: "none",
+                  background: "none",
+                  cursor: "pointer",
+                  borderBottom: "1px solid #2A3942",
+                }}
+              >
+                <div
+                  className="avatar"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: avatarColor(user.name),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontWeight: "bold",
+                    marginRight: 12,
+                  }}
+                >
+                  {user.name?.[0]?.toUpperCase() || "?"}
+                </div>
+                <div
+                  className="text-block"
+                  style={{ flex: 1, textAlign: "left" }}
+                >
+                  <div className="name" style={{ fontWeight: 500 }}>
+                    {user.name}
+                  </div>
+                  <div
+                    className="sub"
+                    style={{ fontSize: 13, color: "#8696A0" }}
+                  >
+                    Click to select
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   );
 };

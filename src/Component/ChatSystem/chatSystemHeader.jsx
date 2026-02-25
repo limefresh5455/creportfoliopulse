@@ -10,11 +10,11 @@ export const ChatHeader = ({
   onProfileClick,
   isGroup,
   participants,
+  onSearchClick,
 }) => {
   const { typingUsers, activeConversation } = useSelector(
     (state) => state.chatSystemSlice,
   );
-  console.log(participants, "participants");
 
   const conversationId = activeConversation?.id;
 
@@ -63,7 +63,7 @@ export const ChatHeader = ({
       </div>
 
       <div className="chat-actions">
-        <i className="ri-search-line" />
+        <i className="ri-search-line" onClick={onSearchClick} />{" "}
         <i className="ri-more-2-fill" />
       </div>
     </div>

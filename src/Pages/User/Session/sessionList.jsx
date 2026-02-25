@@ -249,11 +249,10 @@ export const SessionList = ({ setShowSessionModal }) => {
                     key={session.session_id}
                     className={`d-flex align-items-center justify-content-between 
                     flex-wrap border rounded-3 mb-2 shadow-sm
-                    ${
-                      selectedChatId === session.session_id
+                    ${selectedChatId === session.session_id
                         ? "bg-dark text-white"
-                        : "bg-light text-dark"
-                    }`}
+                        : ""
+                      }`}
                     style={{
                       padding: "10px 12px",
                       transition: "all 0.2s ease-in-out",
@@ -288,11 +287,9 @@ export const SessionList = ({ setShowSessionModal }) => {
                         </span>
                       </div>
                       <button
-                        className={`btn btn-sm ${
-                          selectedChatId === session.session_id
-                            ? "btn-outline-light"
-                            : "btn-outline-dark"
-                        }`}
+                        className={`btn btn-sm ${selectedChatId === session.session_id
+
+                          }`}
                         onClick={(e) => {
                           e.stopPropagation();
                           setSessionToDelete(session.session_id);

@@ -17,7 +17,6 @@ export const ChatInput = ({
   const textareaRef = useRef(null);
   const fileRef = useRef(null);
 
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState(null);
 
@@ -134,8 +133,8 @@ export const ChatInput = ({
               <img src={pendingFile.previewUrl} alt="Preview" />
             ) : (
               <div className="attachment-file">
-                <i className="ri-file-line text-dark" />
-                <span className="text-dark">{pendingFile.name}</span>
+                <i className="ri-file-line" />
+                <span>{pendingFile.name}</span>
               </div>
             )}
           </div>
@@ -148,13 +147,6 @@ export const ChatInput = ({
 
       <div className="chat-input-row">
         <div className="input-actions">
-          <button
-            className={`action-btn ${showEmojiPicker ? "active" : ""}`}
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          >
-            <i className="ri-emotion-happy-line" />
-          </button>
-
           <button
             className="action-btn"
             onClick={() => fileRef.current.click()}
@@ -178,7 +170,6 @@ export const ChatInput = ({
 
         <textarea
           ref={textareaRef}
-          style={{ color: "black" }}
           className="message-input"
           placeholder="Type a message"
           value={text}

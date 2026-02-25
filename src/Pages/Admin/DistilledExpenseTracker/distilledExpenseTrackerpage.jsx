@@ -16,7 +16,9 @@ export const DistilledExpenseTrackerPage = () => {
         style={{ backgroundColor: "#212529", zIndex: 10 }}
       >
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-          <h5 className="text-white m-0 text-center text-md-start mb-2 mb-md-0">{headerTitle}</h5>
+          <h5 className="text-white m-0 text-center text-md-start mb-2 mb-md-0">
+            {headerTitle}
+          </h5>
           <div className="d-flex flex-wrap gap-2">
             <Button
               variant={activeTab === "form" ? "light" : "outline-light"}
@@ -34,17 +36,14 @@ export const DistilledExpenseTrackerPage = () => {
             </Button>
           </div>
         </div>
-        </div>
-        
+      </div>
 
-      <Row className="justify-content-center ">
-        <Col md={12}>
-          <Card className="shadow-sm border-0">
-            {activeTab === "form" && <DistilledExpenseTracker />}
-            {activeTab === "list" && <DistilledExpenseTrackerlist />}
-          </Card>
-        </Col>
-      </Row>
+      <Col md={12}>
+        <Card className="shadow-sm border-0">
+          {activeTab === "form" && <DistilledExpenseTracker />}
+          {activeTab === "list" && <DistilledExpenseTrackerlist />}
+        </Card>
+      </Col>
     </>
   );
 };

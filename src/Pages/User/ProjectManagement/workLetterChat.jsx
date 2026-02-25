@@ -95,7 +95,7 @@ export const WorkLetterChat = ({ projectId }) => {
                 <p className="fw-medium mb-2">{msg.question}</p>
 
                 <div className="mb-1 text-muted small">AI response</div>
-                <div className="bg-light rounded-3 p-3">
+                <div className="rounded-3 p-3">
                   <ReactMarkdown>{msg.answer}</ReactMarkdown>
                 </div>
               </div>
@@ -107,7 +107,7 @@ export const WorkLetterChat = ({ projectId }) => {
                 <p className="fw-medium mb-2">{pendingQuestion}</p>
 
                 <div className="mb-1 text-muted small">AI response</div>
-                <div className="bg-light rounded-3 p-3 d-flex align-items-center gap-2">
+                <div className="rounded-3 p-3 d-flex align-items-center gap-2">
                   <i className="bi bi-stars text-secondary fs-5" />
                   <span className="text-muted small">Analyzing…</span>
                 </div>

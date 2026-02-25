@@ -153,7 +153,6 @@ export const ListBuilding = () => {
       ref={(el) => (cardsRef.current[index] = el)}
       className="card border-0 shadow-sm hover-shadow w-100"
       style={{
-        backgroundColor: "#fff",
         borderWidth: "0.1px",
         borderColor: "#cacacaff",
         borderRadius: "16px",
@@ -210,8 +209,8 @@ export const ListBuilding = () => {
           >
             <div className="col-md-12 py-2">
               <div className="d-flex mx-1">
-                <i className="bi bi-geo-alt-fill me-2 text-primary"></i>
-                <div className="mx-2 check w-75">
+                <i className="bi bi-geo-alt-fill me-2"></i>
+                <div className="mx-2 check w-75 building-address">
                   {building.address || "N/A"}
                 </div>
               </div>
@@ -234,22 +233,20 @@ export const ListBuilding = () => {
       )}
 
       <div
-        className="text-center bg-white rounded shadow-sm py-3 mb-4"
+        className="text-center rounded shadow-sm py-3 mb-4"
         style={{
-          position: "sticky",
           top: 0,
           zIndex: 10,
-          borderBottom: "1px solid #dee2e6",
         }}
       >
-        <h4 className="fw-bold text-dark">Building List</h4>
-        <p className="text-muted mb-3">
+        <h4 className="fw-bold">Building List</h4>
+        <p className="mb-3">
           Here’s a summary of all the submitted buildings.
         </p>
         <input
           type="search"
           placeholder="Search by building name or address"
-          className="form-control bg-white text-dark mx-auto text-center dark-placeholder"
+          className="form-control mx-auto text-center"
           style={{ maxWidth: "420px" }}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

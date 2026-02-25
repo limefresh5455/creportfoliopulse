@@ -7,12 +7,12 @@ import { ChatHeader } from "./chatSystemHeader";
 import { ChatMessages } from "./messageBubble";
 import { ChatInput } from "./messageInput";
 import { UserProfile } from "./userProfile";
+import { ChatSearch } from "./ChatSearch"; // import new component
 import "./chatSystem.css";
 import { clearMessages } from "../../Networking/User/Slice/chatSystemSlice";
 
 export const ChatLayout = () => {
   const { conversationId } = useParams();
-
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -28,6 +28,8 @@ export const ChatLayout = () => {
 
   const [showProfile, setShowProfile] = useState(false);
   const [text, setText] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [highlightedMessageId, setHighlightedMessageId] = useState(null);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -62,6 +64,27 @@ export const ChatLayout = () => {
     });
   };
 
+  const openSearch = () => setIsSearchOpen(true);
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setHighlightedMessageId(null);
+  };
+
+  const handleJumpToMessage = (messageId) => {
+    setHighlightedMessageId(messageId);
+    // Scroll after DOM update
+    setTimeout(() => {
+      const element = document.querySelector(
+        `[data-message-id="${messageId}"]`,
+      );
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Remove highlight after 2 seconds
+        setTimeout(() => setHighlightedMessageId(null), 2000);
+      }
+    }, 100);
+  };
+
   return (
     <div className="chat-root">
       <ChatHeader
@@ -71,12 +94,14 @@ export const ChatLayout = () => {
         participants={participants}
         status={userStatus?.[receiverId]}
         onProfileClick={() => setShowProfile(true)}
+        onSearchClick={openSearch} // new prop
       />
 
       <ChatMessages
         messages={allMessages}
         myUserId={myUserId}
         conversationId={conversationId}
+        highlightedMessageId={highlightedMessageId} // new prop
       />
 
       <ChatInput
@@ -96,6 +121,14 @@ export const ChatLayout = () => {
         participants={participants}
         conversationId={conversationId}
         onExitGroup={() => navigate("/conversations")}
+        onSearchClick={openSearch} // new prop
+      />
+
+      <ChatSearch
+        messages={allMessages}
+        isOpen={isSearchOpen}
+        onClose={closeSearch}
+        onJumpToMessage={handleJumpToMessage}
       />
     </div>
   );

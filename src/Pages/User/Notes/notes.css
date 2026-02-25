@@ -1,0 +1,119 @@
+/* ---------- HEADER ---------- */
+/* .header-bg {
+  background: linear-gradient(90deg, #020617, #0f172a, #020617);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  height: 60px;
+} */
+
+/* ---------- LIST CARD ---------- */
+.list-group-item {
+  /* background: rgba(15, 23, 42, 0.75) !important; */
+  /* color: #e2e8f0 !important; */
+  color: var(--black_clr);
+  border: 1px solid rgba(184, 184, 184, 0.966) !important;
+  border-radius: 10px !important;
+  /* margin-bottom: 12px; */
+  backdrop-filter: blur(10px);
+  transition: 0.25s;
+}
+
+.list-group-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- TITLE ---------- */
+.list-group-item h6 {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+/* ---------- CONTENT ---------- */
+.list-group-item p {
+  color: #94a3b8;
+}
+
+/* ---------- FILE BOX ---------- */
+.border.rounded {
+  /* background: rgba(2, 6, 23, 0.8) !important; */
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #cbd5e1;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-secondary {
+  background: linear-gradient(90deg, #06b6d4, #0284c7) !important;
+  border: none;
+}
+
+.btn-outline-primary {
+  border-color: #0284c7;
+  color: #38bdf8;
+}
+
+.btn-outline-primary:hover {
+  background: #0284c7;
+  color: white;
+}
+
+.btn-outline-secondary {
+  border: none;
+  color: #94a3b8;
+}
+
+.btn-outline-secondary:hover {
+  color: white;
+}
+
+/* ---------- DELETE ICON ---------- */
+.bi-trash:hover {
+  color: #ef4444 !important;
+  transform: scale(1.1);
+}
+
+/* ---------- EMPTY STATE ---------- */
+.text-muted {
+  color: #64748b !important;
+}
+
+/* ---------- MODAL ---------- */
+.modal-content {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  color: #e2e8f0;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* inputs */
+.form-control {
+  background: rgba(2, 6, 23, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #e2e8f0 !important;
+}
+
+.form-control::placeholder {
+  color: #64748b;
+}
+
+/* floating labels */
+/* .form-floating label {
+  color: #94a3b8 !important;
+} */
+
+/* ---------- SCROLLBAR ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}

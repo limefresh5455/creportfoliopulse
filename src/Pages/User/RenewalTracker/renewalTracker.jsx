@@ -146,7 +146,7 @@ export const RenewalTracker = () => {
       tenant_current_rent: form.tenant_current_rent,
       most_recent_building_comp: form.most_recent_building_comp,
       tenant_contact_info: form.tenant_contact_info,
-       notes: form.notes,
+      notes: form.notes,
       q1: form.q1,
       q2: form.q2,
       q3: form.q3,
@@ -262,8 +262,8 @@ export const RenewalTracker = () => {
         <BackButton />
         <h2 className="fw-bold ms-2">New Renewal Tracker</h2>
       </div>
-      <div className="card p-4 mb-4">
-        <h4 className="mb-5 fw-bold">Basic Information</h4>
+      <div className="p-4 shadow-sm rounded border position-relative">
+        <h5 className="fw-bold pb-2 border-bottom my-3">Basic Information</h5>
         <div className="row g-3">
           {[
             {
@@ -305,7 +305,7 @@ export const RenewalTracker = () => {
               type: "number",
             },
           ].map((field, idx) => (
-            <div key={idx} className="col-md-6">
+            <div key={idx} className="col-md-6 col-12">
               <label className="form-label fw-bold">
                 {field.label}{" "}
                 {field.required && <span className="text-danger">*</span>}
@@ -321,10 +321,10 @@ export const RenewalTracker = () => {
             </div>
           ))}
         </div>
-      </div>
 
-      <div className="card p-4 mb-4">
-        <h4 className="mb-5 fw-bold">Renewal & Financial Information</h4>
+        <h5 className="fw-bold pb-2 border-bottom my-3">
+          Renewal & Financial Information
+        </h5>
         <div className="row g-3">
           <div className="col-md-6">
             <div className="form-check">
@@ -385,12 +385,9 @@ export const RenewalTracker = () => {
             />
           </div>
         </div>
-      </div>
-      <div className="card p-4 mb-4">
-        <h4 className="mb-4 fw-bold">Notes</h4>
+        <h5 className="fw-bold pb-2 border-bottom my-3">Notes</h5>
         <div className="row">
           <div className="col-md-12">
-            
             <textarea
               name="notes"
               value={form.notes}
@@ -401,30 +398,30 @@ export const RenewalTracker = () => {
             />
           </div>
         </div>
-      </div>
 
-      <div className="card p-4 mb-5">
-        <h4 className="mb-5 fw-bold">Quarterly Status Updates</h4>
+        <h5 className="fw-bold pb-2 border-bottom my-3">
+          Quarterly Status Updates
+        </h5>
         {quarters.map((quarter, index) =>
-          renderQuarterSection(quarter, `Quarter ${index + 1}`)
+          renderQuarterSection(quarter, `Quarter ${index + 1}`),
         )}
-      </div>
 
-      <div className="d-flex flex-wrap justify-content-center gap-3">
-        <button
-          onClick={handleSubmit}
-          className="btn btn-primary"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <span className="spinner-border spinner-border-sm me-2"></span>
-              Submitting...
-            </>
-          ) : (
-            "Submit"
-          )}
-        </button>
+        <div className="d-flex flex-wrap justify-content-center gap-3 mt-4 pt-3">
+          <button
+            onClick={handleSubmit}
+            className="btn btn-primary"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                Submitting...
+              </>
+            ) : (
+              "Submit"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

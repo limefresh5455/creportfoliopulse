@@ -115,12 +115,10 @@ const DealDetailView = () => {
   const handleSave = async () => {
     if (!dealId) return;
 
-    if (!form.tenant_name.trim()) {
-      toast.error("Tenant Name is required");
-      return;
-    }
+
 
     setSaving(true);
+
     const formPayload = {};
     Object.entries(form).forEach(([key, value]) => {
       if (typeof value === "string" && value.trim() !== "") {
@@ -134,15 +132,17 @@ const DealDetailView = () => {
         }
       }
     });
+
     const stagesPayload = stages.map((stage) => {
       const stageObj = {
-        id: stage.id,
+        id: stage.id, 
         stage_name: stage.stage_name,
         order_index: stage.order_index,
-        is_completed: stage.is_completed,
+        is_completed: stage.is_completed, 
       };
 
       if (stage.is_completed && stage.completed_at) {
+       
         stageObj.completed_at = new Date(
           stage.completed_at + "T00:00:00.000Z",
         ).toISOString();
@@ -170,6 +170,7 @@ const DealDetailView = () => {
 
       setDeal(result);
       setIsEditMode(false);
+
 
       setForm({
         tenant_name: result.tenant_name || "",

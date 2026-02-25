@@ -48,6 +48,12 @@ export const BuildingInfoList = () => {
     }
   }, [BuildingList, searchTerm, loading]);
 
+  // const goToChat = (buildingId, category) => {
+  //   navigate("/building-info-upload", {
+  //     state: { buildingId, category },
+  //   });
+  // };
+
   const goToChat = (buildingId, category) => {
     if (category === "tenant_info") {
       navigate("/tenant-info-upload", {
@@ -216,13 +222,12 @@ export const BuildingInfoList = () => {
 
                   <div className="d-flex align-items-center">
                     <i
-                      className={`bi bi-people-fill me-2 ${
-                        building.current_occupancy > 80
-                          ? "text-success"
-                          : building.current_occupancy > 50
-                            ? "text-warning"
-                            : "text-danger"
-                      }`}
+                      className={`bi bi-people-fill me-2 ${building.current_occupancy > 80
+                        ? "text-success"
+                        : building.current_occupancy > 50
+                          ? "text-warning"
+                          : "text-danger"
+                        }`}
                     ></i>
                     <span className="fw-semibold">
                       {building.current_occupancy ?? "0"}%
@@ -278,16 +283,15 @@ export const BuildingInfoList = () => {
       )}
 
       <div
-        className="text-center bg-white rounded shadow-sm py-3 mb-4"
+        className="text-center rounded shadow-sm py-3 mb-4"
         style={{
-          position: "sticky",
+          // position: "sticky",
           top: 0,
           zIndex: 10,
-          borderBottom: "1px solid #dee2e6",
         }}
       >
-        <h4 className="fw-bold text-dark">Building Info List</h4>
-        <p className="text-muted mb-3">
+        <h4 className="fw-bold">Building Info List</h4>
+        <p className="mb-3">
           Here’s a summary of all the submitted buildings.
         </p>
         <input

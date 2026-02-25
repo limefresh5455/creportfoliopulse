@@ -36,7 +36,7 @@ export const ToursPage = () => {
         </div>
       </div>
 
-      <Card className="p-3 shadow-sm border-0 mt-3">
+      <Card className="">
         {activeTab === "form" && <Tours />}
         {activeTab === "list" && <ToursDetails />}
       </Card>

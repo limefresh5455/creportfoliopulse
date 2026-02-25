@@ -15,7 +15,7 @@ const SearchIcon = () => (
     height="18"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#8696A0"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
   >
@@ -25,7 +25,7 @@ const SearchIcon = () => (
 );
 
 const DotsIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="#AEBAC1">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
     <circle cx="12" cy="5" r="1.5" />
     <circle cx="12" cy="12" r="1.5" />
     <circle cx="12" cy="19" r="1.5" />
@@ -38,7 +38,7 @@ const DeleteIcon = () => (
     height="22"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#E9EDEF"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -51,7 +51,7 @@ const DeleteIcon = () => (
 );
 
 const NewChatIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="#E9EDEF">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
     <path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H6l-2 2V4h16v10z" />
     <path d="M13 11h-2v-2h2v2zm0-4h-2V5h2v2z" />
   </svg>
@@ -63,7 +63,7 @@ const BackIcon = () => (
     height="22"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#E9EDEF"
+    stroke="currentColor"
     strokeWidth="2.5"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -206,7 +206,7 @@ export const ChatList = () => {
               <BackIcon />
             </button>
 
-            <span className="selection-count text-white">
+            <span className="selection-count">
               {selectedConversations.size} selected
             </span>
 
@@ -349,7 +349,7 @@ export const ChatList = () => {
                       >
                         {formatTime(
                           conversation.lastMessage?.created_at ||
-                            conversation.created_at,
+                          conversation.created_at,
                         )}
                       </span>
                     </div>

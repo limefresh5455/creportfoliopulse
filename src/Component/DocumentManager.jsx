@@ -14,6 +14,8 @@ import { BackButton } from "./backButton";
 import Pagination from "./pagination";
 
 const DocumentManager = ({ category, title, description, building_Id }) => {
+  console.log(category, building_Id, "category");
+
   const dispatch = useDispatch();
 
   const [docs, setDocs] = useState([]);
@@ -31,7 +33,9 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
   const indexOfFirstDoc = indexOfLastDoc - itemsPerPage;
   const currentDocs = docs.slice(indexOfFirstDoc, indexOfLastDoc);
 
-  const isFloorPlanCategory = ["floor_plan", "building_stack", "LOI"].includes(category);
+  const isFloorPlanCategory = ["floor_plan", "building_stack", "LOI"].includes(
+    category,
+  );
   const fetchData = async () => {
     setListLoading(true);
 
@@ -47,7 +51,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
       const res = await dispatch(
         isFloorPlanCategory
           ? FloorPlanStackListSubmit({ buildingId: building_Id, category })
-          : GeneralInfoSubmit({ buildingId: building_Id, category })
+          : GeneralInfoSubmit({ buildingId: building_Id, category }),
       ).unwrap();
 
       if (Array.isArray(res)) {
@@ -56,7 +60,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
             file_id: f.file_id,
             name: f.original_file_name,
             tag: f.tag || "",
-          }))
+          })),
         );
       }
     } catch (err) {
@@ -66,26 +70,37 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
     }
   };
 
-
   useEffect(() => {
     fetchData();
   }, [dispatch, category]);
 
-
   const uploadFile = async (file) => {
     const isFloorPlanOrStack =
-      category === "floor_plan" || category === "building_stack" || category === "LOI";
-
+      category === "floor_plan" ||
+      category === "building_stack" ||
+      category === "LOI";
 
     const allowedTypes = isFloorPlanOrStack
-      ? ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
-      : ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "text/csv"];
+      ? [
+        "application/pdf",
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ]
+      : [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "text/csv",
+      ];
 
     if (!allowedTypes.includes(file.type)) {
       toast.error(
         isFloorPlanOrStack
           ? "Only PDF and image files (JPG, PNG, GIF, WEBP) are allowed for this category"
-          : "Only PDF, DOCX, XLSX, and CSV files are allowed"
+          : "Only PDF, DOCX, XLSX, and CSV files are allowed",
       );
       return;
     }
@@ -103,26 +118,25 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
             file,
             category,
             building_Id,
-            tag: category === "floor_plan" || category === "LOI" ? tag : undefined,
-          })
+            tag:
+              category === "floor_plan" || category === "LOI" ? tag : undefined,
+          }),
         ).unwrap();
       } else {
         await dispatch(
-          UploadGeneralDocSubmit({ file, category, building_Id })
+          UploadGeneralDocSubmit({ file, category, building_Id }),
         ).unwrap();
       }
-      setTag("")
+      setTag("");
       toast.success("File uploaded successfully");
       await fetchData();
       if (category === "floor_plan") setTag("");
     } catch (err) {
       console.error("Upload failed:", err);
-
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -144,7 +158,6 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
     if (file) await uploadFile(file);
   };
 
-
   const openDeleteModal = (file) => {
     setFileToDelete(file);
     setShowDeleteModal(true);
@@ -159,7 +172,7 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
       await dispatch(
         isFloorPlanCategory
           ? FloorPlanStackDeleteSubmit({ file_id: fileToDelete.file_id })
-          : DeleteDocSubmit({ file_id: fileToDelete.file_id, category })
+          : DeleteDocSubmit({ file_id: fileToDelete.file_id, category }),
       ).unwrap();
 
       await fetchData();
@@ -173,10 +186,8 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
     }
   };
 
-
   return (
     <div className="container-fluid px-2 px-md-4">
-
       <div className="d-flex align-items-start align-items-md-center gap-2 pt-5 pt-md-3 pb-3">
         <BackButton className="flex-shrink-0" />
         <div className="flex-grow-1 min-w-0">
@@ -185,32 +196,29 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
         </div>
       </div>
 
+      {(category === "floor_plan" || category === "LOI") && (
+        <div className="mb-3">
+          <label htmlFor="tag" className="form-label">
+            Tag
+          </label>
 
-      {
-        (category === "floor_plan" || category === "LOI") && (
-          <div className="mb-3">
-            <label htmlFor="tag" className="form-label">
-              Tag
-            </label>
-
-            <input
-              type="text"
-              id="tag"
-              className="form-control"
-              placeholder={
-                category === "floor_plan" ? "Enter tag for Floor Plan" : "Enter tag by Suite Number"
-              }
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
-            />
-          </div>
-        )
-      }
-
-
+          <input
+            type="text"
+            id="tag"
+            className="form-control"
+            placeholder={
+              category === "floor_plan"
+                ? "Enter tag for Floor Plan"
+                : "Enter tag by Suite Number"
+            }
+            value={tag}
+            onChange={(e) => setTag(e.target.value)}
+          />
+        </div>
+      )}
 
       <div
-        className={`border border-2 rounded-3 p-3 text-center w-100 ${isDragging ? "border-primary bg-light" : "border-dashed bg-light"
+        className={`border border-2 rounded-3 p-3 text-center w-100 ${isDragging ? "border-primary bg-light" : "border-dashed"
           }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -227,7 +235,9 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
           <input
             type="file"
             accept={
-              category === "floor_plan" || category === "building_stack" || category === "LOI"
+              category === "floor_plan" ||
+                category === "building_stack" ||
+                category === "LOI"
                 ? ".pdf,.jpg,.jpeg,.png,.gif,.webp"
                 : ".pdf,.csv,.docx,.xlsx"
             }
@@ -238,7 +248,9 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
 
         <p className="small text-muted mt-2 text-wrap">
           Supports{" "}
-          {category === "floor_plan" || category === "building_stack" || category === "LOI"
+          {category === "floor_plan" ||
+            category === "building_stack" ||
+            category === "LOI"
             ? "PDF and image files (JPG, PNG, GIF, WEBP)"
             : "PDF, DOCX, CSV, XLSX"}{" "}
           up to 30MB
@@ -246,7 +258,6 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
 
         {loading && <RAGLoader />}
       </div>
-
 
       <div className="card shadow-sm mt-4">
         <div className="card-header fw-semibold">Uploaded Documents</div>
@@ -291,7 +302,6 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
           </ul>
         )}
 
-
         {docs.length > 0 && (
           <Pagination
             totalItems={docs.length}
@@ -305,7 +315,6 @@ const DocumentManager = ({ category, title, description, building_Id }) => {
           />
         )}
       </div>
-
 
       {showDeleteModal && (
         <div

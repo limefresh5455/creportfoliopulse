@@ -233,7 +233,7 @@ const DealForm = () => {
           </div>
         )}
 
-        <div className="p-4 shadow-sm bg-white rounded border position-relative">
+        <div className="p-4 shadow-sm rounded border position-relative">
           {saving && (
             <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-75 z-2">
               <div className="text-center">
@@ -337,7 +337,7 @@ const DealForm = () => {
           </h5>
 
           {stages.map((item, i) => (
-            <div key={i} className="p-1 px-2 mb-1 bg-light">
+            <div key={i} className="p-1 px-2 mb-1">
               <div className="row g-3 align-items-center">
                 <div className="col-md-1 col-lg-1 col-2 text-start text-md-center pt-2 pt-md-0">
                   <input
