@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { formatDistanceToNow } from "date-fns";
-import "./ChatSystem.css";
+import "./chatSystem.css";
 
 export const ChatHeader = ({
   name,
