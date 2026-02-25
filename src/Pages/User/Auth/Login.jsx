@@ -16,8 +16,8 @@ export const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [email, setEmail] = useState("dadopaj418@cspaus.com");
-  const [password, setPassword] = useState("33640539");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -208,7 +208,6 @@ export const Login = () => {
                   </button>
                   <hr className="text-muted opacity-25" />
                   <div className="text-center mb-2">
-
                     <span
                       className="px-2 text-muted small position-relative"
                       style={{ top: "-30px" }}

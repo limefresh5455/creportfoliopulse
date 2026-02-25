@@ -215,7 +215,7 @@ export const SpaceInquiry = () => {
         imap_password: res?.imap_password ?? "",
         building_addresses_list:
           Array.isArray(res?.building_addresses_list) &&
-          res.building_addresses_list.length > 0
+          res?.building_addresses_list.length > 0
             ? res.building_addresses_list
             : [""],
         trusted_sender_domains:
