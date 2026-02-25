@@ -55,7 +55,7 @@ export const WebSocketProvider = ({ children }) => {
       socketRef.current = null;
     }
 
-    const wsUrl = `wss://7139-182-70-240-84.ngrok-free.app/messenger/ws?token=${token}`;
+    const wsUrl = `wss://d9a1-182-70-240-84.ngrok-free.app/messenger/ws?token=${token}`;
     console.log("Connecting to WebSocket:", wsUrl);
 
     socketRef.current = new WebSocket(wsUrl);

@@ -14,7 +14,7 @@ export const UserProfile = ({ open, onClose, userId, name }) => {
           <button className="back-btn" onClick={onClose}>
             ←
           </button>
-        
+
         </div>
 
 

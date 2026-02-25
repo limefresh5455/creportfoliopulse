@@ -411,11 +411,10 @@ export const UserProfile = ({
                 disabled={isLeaving}
               >
                 <i
-                  className={`profile-action-icon ${
-                    isLeaving
-                      ? "ri-loader-4-line spinning"
-                      : "ri-logout-box-r-line"
-                  }`}
+                  className={`profile-action-icon ${isLeaving
+                    ? "ri-loader-4-line spinning"
+                    : "ri-logout-box-r-line"
+                    }`}
                   style={{ color: "#EA4335" }}
                 />
                 <span>{isLeaving ? "Leaving..." : "Exit group"}</span>

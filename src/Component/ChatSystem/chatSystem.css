@@ -417,7 +417,7 @@
 }
 
 .profile-header {
-  background: var(--chat-header-bg);
+  background: var(--bg-primary);
   padding: 24px 20px;
   display: flex;
   align-items: center;
@@ -442,7 +442,7 @@
 }
 
 .profile-header-title {
-  color: #e9edef;
+  color: var(--text-primary);
   font-size: 19px;
   font-weight: 500;
 }
@@ -454,7 +454,8 @@
 }
 
 .profile-avatar-section {
-  /* background: #202c33; */
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   padding: 10px 10px;
   text-align: center;
 }
@@ -2519,7 +2520,7 @@
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .member-input-box {
