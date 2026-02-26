@@ -495,7 +495,6 @@
 }
 
 .profile-name {
-  color: #e9edef;
   font-size: 24px;
   font-weight: 500;
   margin-bottom: 4px;
@@ -569,9 +568,9 @@
   align-items: center;
   gap: 28px;
   padding: 16px 20px;
-  background: "--bg-secondary";
+  background: var(--bg-primary);
   border: none;
-  color: #e9edef;
+  color: var(--text-primary);
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -580,9 +579,9 @@
   font-family: inherit;
 }
 
-.profile-action-btn:hover {
+/* .profile-action-btn:hover {
   background: var(--bg-secondary);
-}
+} */
 
 .profile-action-icon {
   font-size: 24px;
@@ -921,7 +920,7 @@
 
 .date-divider {
   margin: 16px 0;
-  color: #fff;
+  color: var(--text-primary);
   text-align: center;
 }
 
@@ -1496,7 +1495,7 @@
   font-size: 15px;
 }
 
-.fab {
+/* .fab {
   position: absolute;
   bottom: 20px;
   right: 20px;
@@ -1510,7 +1509,7 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
+} */
 
 .selection-count {
   margin-left: 12px;
@@ -2312,30 +2311,7 @@
   font-size: 16px;
 }
 
-.fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 168, 132, 0.3);
-  transition:
-    background 0.15s,
-    transform 0.15s;
-  z-index: 10;
-}
 
-.fab:hover {
-  background: #00bc8c;
-  transform: scale(1.05);
-}
 
 .modal-overlay {
   position: fixed;

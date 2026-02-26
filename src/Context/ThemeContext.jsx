@@ -6,7 +6,6 @@ export const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
     useEffect(() => {
-        // Bootstrap only supports light/dark, so we map 'blue' to 'dark' for BS components
         const bsTheme = (theme === 'dark' || theme === 'blue') ? 'dark' : 'light';
         document.documentElement.setAttribute('data-bs-theme', bsTheme);
         document.documentElement.setAttribute('data-theme', theme);

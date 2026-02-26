@@ -30,21 +30,19 @@ export const ChatLayout = () => {
 
   const fileInputRef = useRef(null);
 
-  /* ---------------- SET ACTIVE CONVERSATION ---------------- */
+
   useEffect(() => {
     if (conversationId && receiverId) {
       setCurrentConversation(Number(conversationId), receiverId);
     }
   }, [conversationId, receiverId, setCurrentConversation]);
 
-  /* ---------------- SORT MESSAGES ---------------- */
   const allMessages = useMemo(() => {
     return [...messages].sort(
       (a, b) => new Date(a.created_at) - new Date(b.created_at),
     );
   }, [messages]);
 
-  /* ---------------- SEND MESSAGE ---------------- */
   const handleSend = () => {
     if (!text.trim() || !receiverId || !myUserId) return;
 
@@ -58,7 +56,6 @@ export const ChatLayout = () => {
     setText("");
   };
 
-  /* ---------------- FILE UPLOAD ---------------- */
   const handleFileUpload = (file) => {
     if (!file || !receiverId || !myUserId) return;
 
@@ -87,7 +84,7 @@ export const ChatLayout = () => {
     fileInputRef.current.click();
   };
 
-  /* ---------------- FILE VALIDATION ---------------- */
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -119,7 +116,7 @@ export const ChatLayout = () => {
     e.target.value = null;
   };
 
-  /* ---------------- UI ---------------- */
+
   return (
     <div className="chat-container">
       <ChatHeader

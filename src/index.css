@@ -4,6 +4,7 @@
   --bg-secondary: #f8f9fa;
   --text-primary: #212529;
   --text-secondary: #6c757d;
+  --text-notification: #ffffff;
   --border-color: #dee2e6;
   --card-bg: #ffffff;
   --card-text: #000000;
@@ -22,6 +23,7 @@
   --creportfoliopulse: #ffffff;
   --text-primary: #f8f9fa;
   --text-secondary: #adb5bd;
+  --text-notification: #ffffff;
   --border-color: #383838;
   --card-bg: #1e1e1e;
   --card-text: #ffffff;
@@ -41,6 +43,7 @@
   --creportfoliopulse: #ffffff;
   --text-primary: #ffffff;
   --text-secondary: #b0c4de;
+  --text-notification: #ffffff;
   --border-color: #1a4b8c;
   --card-bg: #0d2b59;
   --card-text: #ffffff;
@@ -60,6 +63,10 @@
 
 .building-address {
   color: var(--card-text);
+}
+
+.notification-text {
+  color: rgba(var(--text-notification));
 }
 
 body {
@@ -99,6 +106,31 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--chat-bubble-sent);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 168, 132, 0.3);
+  transition:
+    background 0.15s,
+    transform 0.15s;
+  z-index: 10;
+}
+
+.fab:hover {
+  background: #00bc8c;
+  transform: scale(1.05);
 }
 
 .card {

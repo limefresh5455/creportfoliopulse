@@ -14,28 +14,30 @@ export const InformationCollaboration = () => {
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [buildings, setBuildings] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [buildingLoading, setBuildingLoading] = useState(false);
-
   const [fields, setFields] = useState([{ key: "", value: "" }]);
 
-  // Fetch buildings when category changes
   const handleCategoryChange = async (e) => {
     const value = e.target.value;
 
+    /* RESET EVERYTHING FIRST */
     setCategory(value);
     setSelectedBuilding("");
     setBuildings([]);
     setSubcategory("");
+    setFields([{ key: "", value: "" }]);
+    setBuildingLoading(false);
 
     if (!value) return;
 
     try {
       setBuildingLoading(true);
+
       const result = await dispatch(fetchBuildings(value)).unwrap();
       const list = result?.data || result || [];
+
       setBuildings(list);
     } catch (err) {
       setBuildings([]);
@@ -59,29 +61,40 @@ export const InformationCollaboration = () => {
     setFields(updated);
   };
 
+
+
+  const isSubmitDisabled =
+    loading ||
+    buildingLoading ||
+    !category ||
+    (buildings.length > 0 && !selectedBuilding) ||
+    (category === "BuildingInfo" && !subcategory);
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!category) return toast.error("Select category");
-    if (!selectedBuilding) return toast.error("Select building");
+    if (buildings.length > 0 && !selectedBuilding)
+      return toast.error("Select building");
 
-    if (category === "BuildingInfo" && !subcategory) {
+    if (category === "BuildingInfo" && !subcategory)
       return toast.error("Select subcategory");
-    }
 
-    // Convert dynamic fields to object
     const keyValueObject = {};
     fields.forEach((f) => {
-      if (f.key.trim()) {
-        keyValueObject[f.key] = f.value;
-      }
+      if (f.key.trim()) keyValueObject[f.key] = f.value;
     });
 
     const payload = {
       category: category,
-      building_id: Number(selectedBuilding),
       form_data: keyValueObject,
     };
+
+    if (selectedBuilding) {
+      payload.building_id = Number(selectedBuilding);
+    }
 
     if (subcategory) {
       payload.subcategory = subcategory;
@@ -95,7 +108,6 @@ export const InformationCollaboration = () => {
       if (FeedbackSubmit.fulfilled.match(resultAction)) {
         toast.success("Submitted successfully!");
 
-        // Reset form
         setCategory("");
         setSelectedBuilding("");
         setBuildings([]);
@@ -111,11 +123,13 @@ export const InformationCollaboration = () => {
     }
   };
 
+
   return (
     <div className="container-fluid d-flex align-items-center">
       <div className="p-3 border_card" style={{ width: "100%" }}>
         <Form onSubmit={handleSubmit}>
-          {/* CATEGORY */}
+
+
           <Form.Group className="mb-4">
             <Form.Label className="fw-semibold white_text">
               Select Category
@@ -140,14 +154,14 @@ export const InformationCollaboration = () => {
             </Form.Select>
           </Form.Group>
 
-          {/* BUILDING LOADING */}
+
           {buildingLoading && (
             <div className="text-center mb-3">
               <div className="small text-muted">Loading buildings...</div>
             </div>
           )}
 
-          {/* BUILDING SELECT */}
+
           {!buildingLoading && buildings.length > 0 && (
             <Form.Group className="mb-4">
               <Form.Label className="fw-semibold white_text">
@@ -167,7 +181,6 @@ export const InformationCollaboration = () => {
             </Form.Group>
           )}
 
-          {/* SUBCATEGORY */}
           {category === "BuildingInfo" && selectedBuilding && (
             <Form.Group className="mb-4">
               <Form.Label className="fw-semibold white_text">
@@ -184,7 +197,7 @@ export const InformationCollaboration = () => {
             </Form.Group>
           )}
 
-          {/* EXTRA FIELDS */}
+
           {category &&
             !buildingLoading &&
             (selectedBuilding || buildings.length === 0) && (
@@ -227,9 +240,9 @@ export const InformationCollaboration = () => {
               </div>
             )}
 
-          {/* SUBMIT */}
-          <div className="text-center">
-            {category && (
+
+          {category && (
+            <div className="text-center">
               <Button
                 type="submit"
                 className="px-5 py-2 fw-semibold"
@@ -239,12 +252,16 @@ export const InformationCollaboration = () => {
                   border: "none",
                   fontSize: "16px",
                 }}
-                disabled={loading}
+                disabled={isSubmitDisabled}
               >
-                {loading ? <Spinner size="sm" animation="border" /> : "Submit"}
+                {loading ? (
+                  "Submiting..."
+                ) : (
+                  "Submit"
+                )}
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </Form>
       </div>
     </div>

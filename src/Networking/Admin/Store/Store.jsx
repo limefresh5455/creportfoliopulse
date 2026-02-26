@@ -13,6 +13,7 @@ import workLetterdocumentReducer from "../../User/Slice/workLetterDocumentSlice"
 import timelineReducer from "../../User/Slice/timeLineSlice";
 import workLetterChatReducer from "../../User/Slice/workLetterChatSlice";
 import lineItemReducer from "../../User/Slice/lineItemSlice";
+import notificationReducer from "../../../Networking/User/Slice/notificationSlice"
 
 const store = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ const store = configureStore({
     timelineSlice: timelineReducer,
     workLetterChatSlice: workLetterChatReducer,
     lineItemSlice: lineItemReducer,
+    notificationSlice: notificationReducer
   },
 });
 

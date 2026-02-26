@@ -72,7 +72,7 @@ const DealDetailView = () => {
       }
     } catch (err) {
       console.error("Error fetching deal details:", err);
-      // toast.error("Failed to load deal details");
+   
     } finally {
       setLoading(false);
     }

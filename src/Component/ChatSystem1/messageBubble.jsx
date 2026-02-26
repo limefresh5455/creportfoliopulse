@@ -22,7 +22,7 @@ const ChatMessages = ({ messages = [], myUserId, conversationId }) => {
     (state) => state.chatSystemSlice,
   );
 
-  /* ---------------- CONVERSATION CHANGE ---------------- */
+
   useEffect(() => {
     if (!conversationId) return;
 
@@ -34,7 +34,7 @@ const ChatMessages = ({ messages = [], myUserId, conversationId }) => {
     dispatch(fetchMessages({ conversationId, page: 1 }));
   }, [conversationId, dispatch]);
 
-  /* ---------------- AUTO SCROLL ---------------- */
+  
   useEffect(() => {
     if (!messages.length) return;
 
@@ -46,7 +46,7 @@ const ChatMessages = ({ messages = [], myUserId, conversationId }) => {
     }
   }, [messages]);
 
-  /* ---------------- SCROLL PAGINATION ---------------- */
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -85,12 +85,10 @@ const ChatMessages = ({ messages = [], myUserId, conversationId }) => {
     return () => el.removeEventListener("scroll", handleScroll);
   }, [page, loadingMore, hasMore, conversationId, dispatch]);
 
-  /* ---------------- DOWNLOAD ---------------- */
   const downloadFile = (fileId, fileName) => {
     dispatch(downloadFileApi({ fileId, fileName }));
   };
 
-  /* ---------------- TYPING USERS ---------------- */
   const typingList = useMemo(() => {
     if (!conversationId || !typingUsers?.[conversationId]) return [];
     return Object.entries(typingUsers[conversationId]).filter(
@@ -98,7 +96,6 @@ const ChatMessages = ({ messages = [], myUserId, conversationId }) => {
     );
   }, [typingUsers, conversationId, myUserId]);
 
-  /* ---------------- LOADER ---------------- */
   if (loading && page === 1) {
     return (
       <div className="flex-grow-1 overflow-auto p-3 d-flex flex-column gap-2">

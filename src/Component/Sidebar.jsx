@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { SessionList } from "../Pages/User/Session/sessionList";
 import { SidebarSkeleton } from "./SidebarSkeleton";
 import ThemeToggle from "./ThemeToggle";
+import { NotificationToggle } from "./notificationToggle";
 
 export const Sidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
@@ -724,7 +725,12 @@ export const Sidebar = ({ collapsed, setCollapsed }) => {
           </ul>
         </div>
 
+
         <div className="mt-auto p-3 border-top">
+
+          <div className="mb-3 d-flex justify-content-center">
+            <NotificationToggle />
+          </div>
           <div className="mb-3 d-flex justify-content-center">
             <ThemeToggle collapsed={collapsed} />
           </div>

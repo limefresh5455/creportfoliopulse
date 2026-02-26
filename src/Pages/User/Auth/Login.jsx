@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-
+import { useWebSocket } from "../../../Context/WebSocketContext";
 import {
   googleLoginService,
   LoginSubmit,
@@ -15,6 +15,7 @@ import { getHealth } from "../../../Networking/User/APIs/Health/health";
 export const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { connect } = useWebSocket();
 
   const [email, setEmail] = useState("dadopaj418@cspaus.com");
   const [password, setPassword] = useState("33640539");
@@ -60,8 +61,13 @@ export const Login = () => {
   const handleAuthResponse = (res) => {
     sessionStorage.setItem("access_token", res.access_token);
     sessionStorage.setItem("role", res.role);
+    sessionStorage.setItem("user_id", res.id);
 
-    if (res.role === "user") navigate("/dashboard", { state: { email } });
+    window.dispatchEvent(new Event("authChanged"));
+
+    connect();
+
+    if (res.role === "user") navigate("/dashboard");
     else if (res.role === "admin") navigate("/admin-dashboard");
     else if (res.role === "superuser") navigate("/admin-management");
 

@@ -101,36 +101,3 @@ export const ReviewInformationCollaboration = createAsyncThunk(
     }
   },
 );
-
-// export default UpdateFeedback = createAsyncThunk(
-//   "UpdateFeedback",
-//   async ({ feedback_id, feedback }, { rejectWithValue }) => {
-//     try {
-//       const response = await axiosInstance.patch(
-//         `${updatefeedback}${feedback_id}`,
-//         {
-//           feedback,
-//         },
-//       );
-
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message);
-//     }
-//   },
-// );
-
-// export const DeleteFeedbackSubmit = createAsyncThunk(
-//   "DeleteFeedbackSubmit",
-//   async (id, { rejectWithValue }) => {
-//     try {
-//       const response = await axiosInstance.delete(
-//         `/feedback/?feedback_id=${id}`,
-//       );
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message);
-//     }
-//   },
-// );

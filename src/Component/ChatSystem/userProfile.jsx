@@ -442,7 +442,7 @@ export const UserProfile = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3 className="text-dark">Media, links and docs</h3>
+              <h3 className="">Media, links and docs</h3>
               <button
                 className="close-btn"
                 onClick={() => setShowAllMedia(false)}

@@ -22,7 +22,6 @@ export const AdminInformationCollaboration = () => {
   const [role, setRole] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
-  const [editLoading, setEditLoading] = useState(false);
 
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -45,7 +44,7 @@ export const AdminInformationCollaboration = () => {
       setRole(data.current_user_role);
     } catch (error) {
       console.error("Error fetching submissions:", error);
-      // toast.error("Failed to load submissions");
+
     } finally {
       setLoading(false);
     }
@@ -113,7 +112,7 @@ export const AdminInformationCollaboration = () => {
       toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
       console.error("Status update error:", err);
-      // toast.error("Failed to update status");
+
     } finally {
       setUpdatingStatusId(null);
     }
@@ -139,7 +138,7 @@ export const AdminInformationCollaboration = () => {
       setReviewModal(false);
     } catch (err) {
       console.error("Review error:", err);
-      // toast.error("Failed to update status");
+
     } finally {
       setReviewLoading(false);
     }
@@ -172,11 +171,8 @@ export const AdminInformationCollaboration = () => {
   return (
     <div className="collab-wrapper p-3">
       {submissions.length === 0 ? (
-        <div className="text-center py-5 empty-state">
+        <div className="text-center py-5 empty-state h-100">
           <h5 className="">No submissions found</h5>
-          <p className="text-secondary">
-            Users have not submitted any tenant information yet.
-          </p>
         </div>
       ) : (
         <>
@@ -185,7 +181,7 @@ export const AdminInformationCollaboration = () => {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>User ID</th>
+                  <th>User Name</th>
                   <th>Category</th>
                   <th>Tenant Details</th>
                   <th>Submitted</th>
@@ -197,7 +193,7 @@ export const AdminInformationCollaboration = () => {
                 {currentSubmissions.map((item, index) => (
                   <tr key={item.id}>
                     <td>{indexOfFirstItem + index + 1}</td>
-                    <td>{item.user_id}</td>
+                    <td>{item.user_name}</td>
                     <td>{item.category}</td>
                     <td>
                       <div>
@@ -239,7 +235,7 @@ export const AdminInformationCollaboration = () => {
                             )}`}
                             style={{ cursor: role === "admin" ? "pointer" : "not-allowed" }}
                           >
-                            <option value="pending">Pending</option>
+                            <option disabled value="pending">Pending</option>
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
                           </Form.Select>

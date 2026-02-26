@@ -209,7 +209,7 @@ export const SubleaseTracker = ({ data }) => {
           placeholder="Enter any additional notes here..."
         />
 
-        <h4 className="mb-3">Lease & Tenant Details</h4>
+        <h5 className="fw-bold pb-2 border-bottom my-3">Lease & Tenant Details</h5>
 
         {quarters.map((q) => (
           <div>

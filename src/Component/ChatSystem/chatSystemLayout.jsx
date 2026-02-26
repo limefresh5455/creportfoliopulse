@@ -7,7 +7,7 @@ import { ChatHeader } from "./chatSystemHeader";
 import { ChatMessages } from "./messageBubble";
 import { ChatInput } from "./messageInput";
 import { UserProfile } from "./userProfile";
-import { ChatSearch } from "./ChatSearch"; // import new component
+import { ChatSearch } from "./ChatSearch";
 import "./chatSystem.css";
 import { clearMessages } from "../../Networking/User/Slice/chatSystemSlice";
 
@@ -72,14 +72,14 @@ export const ChatLayout = () => {
 
   const handleJumpToMessage = (messageId) => {
     setHighlightedMessageId(messageId);
-    // Scroll after DOM update
+   
     setTimeout(() => {
       const element = document.querySelector(
         `[data-message-id="${messageId}"]`,
       );
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
-        // Remove highlight after 2 seconds
+      
         setTimeout(() => setHighlightedMessageId(null), 2000);
       }
     }, 100);
@@ -94,14 +94,14 @@ export const ChatLayout = () => {
         participants={participants}
         status={userStatus?.[receiverId]}
         onProfileClick={() => setShowProfile(true)}
-        onSearchClick={openSearch} // new prop
+        onSearchClick={openSearch} 
       />
 
       <ChatMessages
         messages={allMessages}
         myUserId={myUserId}
         conversationId={conversationId}
-        highlightedMessageId={highlightedMessageId} // new prop
+        highlightedMessageId={highlightedMessageId} 
       />
 
       <ChatInput
@@ -121,7 +121,7 @@ export const ChatLayout = () => {
         participants={participants}
         conversationId={conversationId}
         onExitGroup={() => navigate("/conversations")}
-        onSearchClick={openSearch} // new prop
+        onSearchClick={openSearch} 
       />
 
       <ChatSearch

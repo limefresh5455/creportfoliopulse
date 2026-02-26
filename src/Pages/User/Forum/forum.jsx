@@ -42,8 +42,7 @@ export const PortfolioForum = () => {
   const [threadToDelete, setThreadToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // NEW: controls which screen is shown
-  const [currentView, setCurrentView] = useState("list"); // 'list' or 'thread'
+  const [currentView, setCurrentView] = useState("list");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
@@ -100,7 +99,6 @@ export const PortfolioForum = () => {
       if (selectedThread?.id === threadToDelete) {
         setSelectedThread(null);
         setThreadMessages([]);
-        // If we were viewing the deleted thread, go back to list
         setCurrentView("list");
       }
       toast.success("Thread deleted successfully");
@@ -115,20 +113,20 @@ export const PortfolioForum = () => {
 
   const handlethreadhistory = async (thread) => {
     setSelectedThread(thread);
-    setLoadingHistory(true);
+    setCurrentView('thread');           // Switch to thread view immediately
+    setThreadMessages([]);              // Clear previous thoughts
+    setLoadingHistory(true);            // Show loader
     setUserdetail(userdata?.id);
     setEditingThoughtId(null);
-    setNewMessage("");
+    setNewMessage('');
     setSelectedFile(null);
     setSelectedFilePreview(null);
 
     try {
       const data = await dispatch(getThreadhistory(thread.id)).unwrap();
       setThreadMessages(data.thoughts || []);
-      // Switch to thread view after loading
-      setCurrentView("thread");
     } catch (error) {
-      toast.error("Failed to load thread history");
+      toast.error('Failed to load thread history');
     } finally {
       setLoadingHistory(false);
     }
@@ -210,11 +208,6 @@ export const PortfolioForum = () => {
     });
 
     e.target.value = null;
-  };
-
-  const removeSelectedFile = () => {
-    setSelectedFile(null);
-    setSelectedFilePreview(null);
   };
 
   const handleSend = async () => {
@@ -355,9 +348,8 @@ export const PortfolioForum = () => {
             filteredThreads.map((t) => (
               <Card
                 key={t.id}
-                className={`p-3 mb-2 shadow-sm thread_card border ${
-                  selectedThread?.id === t.id ? "border-primary" : ""
-                }`}
+                className={`p-3 mb-2 shadow-sm thread_card border ${selectedThread?.id === t.id ? "border-primary" : ""
+                  }`}
                 style={{ cursor: "pointer" }}
                 onClick={() => handlethreadhistory(t)}
               >
@@ -398,7 +390,7 @@ export const PortfolioForum = () => {
                       ? t.title.slice(0, 28) + "..."
                       : t.title}
                   </span>
-                  {/* <span>|</span> */}
+
                   <span className="text-center " style={{ fontSize: 14 }}>
                     last thought at{" "}
                     {t.last_thought_at
@@ -420,13 +412,13 @@ export const PortfolioForum = () => {
               variant="link"
               className="bg-dark text-white d-flex align-items-center justify-content-center mx-2"
               onClick={() => setCurrentView("list")}
-              style={{ fontSize: "1.0rem", color: "#6c757d" }}
+              style={{ color: "#6c757d" }}
             >
               <i className="bi bi-arrow-left"></i>
             </Button>
-            <h3 className="fw-bold m-0 text-truncate">
+            <h5 className="fw-bold px-4 px-md-0">
               {selectedThread?.title}
-            </h3>
+            </h5>
             <span className="text-muted ms-auto">
               {selectedThread?.thought_count || 0} thoughts
             </span>
@@ -468,19 +460,16 @@ export const PortfolioForum = () => {
                 {threadMessages.map((msg) => (
                   <Card
                     key={msg.id}
-                    className={`p-3 mb-3 shadow-sm ${
-                      msg.deleted ? "border-danger bg-light" : ""
-                    } ${
-                      msg.author_role === "admin"
+                    className={`p-3 mb-3 shadow-sm ${msg.deleted ? "border-danger bg-light" : ""
+                      } ${msg.author_role === "admin"
                         ? "admin-thread"
                         : "user-thread"
-                    }`}
+                      }`}
                   >
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <h6
-                        className={`fw-bold mb-0 ${
-                          msg.author_role === "admin" ? "text-primary" : ""
-                        }`}
+                        className={`fw-bold mb-0 ${msg.author_role === "admin" ? "text-primary" : ""
+                          }`}
                       >
                         {msg.author_name || "Unknown User"}
                         {msg.author_role === "admin" && (
@@ -507,35 +496,35 @@ export const PortfolioForum = () => {
                         <div className="d-flex justify-content-end mt-3">
                           {(userdata.role === "admin" ||
                             Number(msg.author_uid) === userdata?.id) && (
-                            <div className="d-flex gap-2">
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() =>
-                                  handleEdit(msg.id, msg.content, msg)
-                                }
-                              >
-                                <i className="bi bi-pencil-square"></i>
-                              </button>
+                              <div className="d-flex gap-2">
+                                <button
+                                  className="btn btn-sm btn-outline-primary"
+                                  onClick={() =>
+                                    handleEdit(msg.id, msg.content, msg)
+                                  }
+                                >
+                                  <i className="bi bi-pencil-square"></i>
+                                </button>
 
-                              <button
-                                className="btn btn-sm btn-outline-danger d-flex align-items-center"
-                                onClick={() =>
-                                  handleDelete(selectedThread.id, msg.id)
-                                }
-                                disabled={loadingId === msg.id}
-                              >
-                                {loadingId === msg.id ? (
-                                  <>
-                                    <Spinner animation="border" size="sm" />
-                                  </>
-                                ) : (
-                                  <>
-                                    <i className="bi bi-trash"></i>
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          )}
+                                <button
+                                  className="btn btn-sm btn-outline-danger d-flex align-items-center"
+                                  onClick={() =>
+                                    handleDelete(selectedThread.id, msg.id)
+                                  }
+                                  disabled={loadingId === msg.id}
+                                >
+                                  {loadingId === msg.id ? (
+                                    <>
+                                      <Spinner animation="border" size="sm" />
+                                    </>
+                                  ) : (
+                                    <>
+                                      <i className="bi bi-trash"></i>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            )}
                         </div>
                       </>
                     )}
@@ -546,7 +535,7 @@ export const PortfolioForum = () => {
             )}
           </div>
 
-          {/* Input area (sticky at bottom) */}
+
           <div
             style={{
               position: "sticky",
@@ -635,7 +624,7 @@ export const PortfolioForum = () => {
         </div>
       )}
 
-      {/* Delete Thread Modal */}
+
       <Modal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
@@ -669,7 +658,6 @@ export const PortfolioForum = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Create Thread Modal */}
       <Modal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}

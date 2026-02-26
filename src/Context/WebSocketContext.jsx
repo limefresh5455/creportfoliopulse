@@ -14,121 +14,163 @@ import {
   deleteMessageSocket,
 } from "../Networking/User/Slice/chatSystemSlice";
 
+
 const WebSocketContext = createContext(null);
 export const useWebSocket = () => useContext(WebSocketContext);
+
+
+const getToken = () =>
+  sessionStorage.getItem("access_token") ||
+  sessionStorage.getItem("token");
+
+const getUserIdFromStorage = () =>
+  sessionStorage.getItem("user_id") ||
+  sessionStorage.getItem("admin_id");
+
 
 export const WebSocketProvider = ({ children }) => {
   const dispatch = useDispatch();
   const socketRef = useRef(null);
-  const reconnectTimeoutRef = useRef(null);
+  const reconnectTimer = useRef(null);
+
   const [status, setStatus] = useState("🔴 Disconnected");
   const [isConnected, setIsConnected] = useState(false);
-  const { userdata } = useSelector((state) => state.ProfileSlice);
-  const myUserId = userdata?.id;
-  const token = sessionStorage.getItem("access_token");
+
+  const { userdata } = useSelector((s) => s.ProfileSlice || {});
+  const myUserId = userdata?.id || getUserIdFromStorage();
+  const token = getToken();
 
   const currentConversationRef = useRef(null);
   const currentReceiverRef = useRef(null);
 
-  const cleanup = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
+
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
     }
   }, []);
+
+
+
+  const showNotification = ({ title, body, url }) => {
+    if (!("Notification" in window)) return;
+
+    if (Notification.permission === "granted" && document.hidden) {
+      const n = new Notification(title, { body });
+
+      n.onclick = () => {
+        window.focus();
+        if (url) window.location.href = url;
+      };
+    }
+  };
+
+
+  const entryEventMap = {
+    ENTRY_APPROVED: { label: "Approved", actor: "reviewed_by_name" },
+    ENTRY_REJECTED: { label: "Rejected", actor: "reviewed_by_name" },
+    ENTRY_DELETED: { label: "Deleted", actor: "deleted_by_name" },
+    NEW_SUBMISSION: { label: "Submitted", actor: "submitted_by_name" },
+  };
+
+
+  const cleanup = useCallback(() => {
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
+  }, []);
+
 
   const connect = useCallback(() => {
     cleanup();
 
-    if (!token || !myUserId) {
-      console.log("No token or user ID available for WebSocket connection");
+    if (!token) {
+      console.warn("❌ No token — socket not connecting");
       return;
     }
 
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      console.log("WebSocket already connected");
+    if (!myUserId) {
+      console.warn("❌ No userId — socket waiting");
       return;
     }
+
+    if (socketRef.current?.readyState === WebSocket.OPEN) return;
 
     if (socketRef.current) {
       socketRef.current.close();
       socketRef.current = null;
     }
 
-    const wsUrl = `wss://d9a1-182-70-240-84.ngrok-free.app/messenger/ws?token=${token}`;
-    console.log("Connecting to WebSocket:", wsUrl);
+    const wsUrl = `wss://d49a-182-70-240-84.ngrok-free.app/messenger/ws?token=${token}`;
+    console.log("WS CONNECTING →", wsUrl);
 
-    socketRef.current = new WebSocket(wsUrl);
+    const socket = new WebSocket(wsUrl);
+    socketRef.current = socket;
 
-    socketRef.current.onopen = () => {
-      console.log("WebSocket connected successfully");
+    socket.onopen = () => {
+      console.log("WebSocket Connected");
       setStatus("🟢 Connected");
       setIsConnected(true);
     };
 
-    socketRef.current.onmessage = (event) => {
+    socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        // console.log("WebSocket message received:", data);
+
+
+        if (entryEventMap[data.type]) {
+          const cfg = entryEventMap[data.type];
+
+          showNotification({
+            title: `Entry ${cfg.label}`,
+            body: `${data[cfg.actor]} ${cfg.label.toLowerCase()} a ${data.category} entry`,
+            url: `/building/${data.building_id}`,
+          });
+          return;
+        }
+
 
         switch (data.type) {
-          case "MY_PRESENCE":
-            // console.log("My presence:", data);
-            break;
-
           case "USER_STATUS":
-            // console.log("User status update:", data);
             dispatch(
               setUserStatus({
                 user_id: data.user_id,
                 online: data.online,
                 last_seen: data.last_seen,
-              }),
+              })
             );
             break;
 
           case "TYPING":
-            // console.log("Typing indicator received:", data);
-
-            if (data.sender_id && data.sender_id !== myUserId) {
+            if (data.sender_id !== myUserId) {
               const conversationId = currentConversationRef.current;
 
               if (conversationId) {
-                console.log(
-                  `User ${data.sender_id} is typing in conversation ${conversationId}`,
-                );
-
                 dispatch(
                   setTypingStatus({
                     conversation_id: conversationId,
                     sender_id: data.sender_id,
                     is_typing: data.is_typing !== false,
-                  }),
+                  })
                 );
 
                 if (data.is_typing !== false) {
                   setTimeout(() => {
-                    console.log(
-                      `Auto-clearing typing for user ${data.sender_id}`,
-                    );
                     dispatch(
                       setTypingStatus({
                         conversation_id: conversationId,
                         sender_id: data.sender_id,
                         is_typing: false,
-                      }),
+                      })
                     );
                   }, 3000);
                 }
-              } else {
-                console.warn("No current conversation for typing indicator");
               }
             }
             break;
 
           case "NEW_MESSAGE":
-            console.log("📩 New message received from socket:", data);
-
             dispatch(
               addMessageSocket({
                 id: data.message_id || data.id,
@@ -137,100 +179,88 @@ export const WebSocketProvider = ({ children }) => {
                 sender_name: data.sender_name,
                 content: data.content || "",
                 created_at: data.created_at,
-
                 file_id: data.file_id || null,
                 file_name: data.file_name || null,
                 file_url: data.file_url || null,
                 file_type: data.file_name
                   ? data.file_name.split(".").pop().toLowerCase()
                   : null,
-              }),
+              })
             );
             break;
 
           case "MESSAGE_DELETED":
-            console.log("Message deleted:", data);
             dispatch(
               deleteMessageSocket({
                 conversation_id: data.conversation_id,
                 message_id: data.message_id,
-              }),
+              })
             );
             break;
 
-          case "HEARTBEAT_ACK":
+          case "NOTIFICATION":
+            showNotification({
+              title: data.title || "Notification",
+              body: data.message || "",
+              url: data.url,
+            });
             break;
 
           case "ERROR":
-            console.error("WebSocket error:", data.message);
+            console.error("Socket error:", data.message);
             break;
 
           default:
-            console.warn("Unknown WebSocket message type:", data.type, data);
+            console.warn("Unknown socket type:", data.type);
         }
-      } catch (error) {
-        console.error("Error parsing WebSocket message:", error, event.data);
+      } catch (err) {
+        console.error("Socket parse error:", err);
       }
     };
 
-    socketRef.current.onclose = (event) => {
-      console.log("🔌 WebSocket disconnected:", {
-        code: event.code,
-        reason: event.reason,
-        wasClean: event.wasClean,
-      });
+    socket.onclose = (event) => {
+      console.log("Socket closed:", event.code);
 
-      socketRef.current = null;
       setStatus("🔴 Disconnected");
       setIsConnected(false);
+      socketRef.current = null;
 
-      if (event.code === 1008) {
-        console.log("Authentication failed, not reconnecting");
-        return;
-      }
+      if (event.code === 1008) return;
 
-      cleanup();
-      reconnectTimeoutRef.current = setTimeout(() => {
-        console.log("🔄 Attempting to reconnect WebSocket...");
-        connect();
-      }, 5000);
+      reconnectTimer.current = setTimeout(connect, 5000);
     };
 
-    socketRef.current.onerror = (error) => {
-      console.error("WebSocket error event:", error);
+    socket.onerror = (err) => {
+      console.error("Socket error:", err);
     };
   }, [token, myUserId, dispatch, cleanup]);
 
+  useEffect(() => {
+    const handleAuthChange = () => {
+      console.log("Auth changed → reconnecting socket");
+      connect();
+    };
+
+    window.addEventListener("authChanged", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("authChanged", handleAuthChange);
+    };
+  }, [connect]);
+
+
   const sendMessage = useCallback(
     (payload) => {
-      if (!socketRef.current) {
-        console.error("WebSocket not initialized");
-        return false;
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        socketRef.current.send(JSON.stringify(payload));
+        return true;
       }
 
-      if (socketRef.current.readyState === WebSocket.OPEN) {
-        try {
-          socketRef.current.send(JSON.stringify(payload));
-          return true;
-        } catch (error) {
-          console.error("Error sending WebSocket message:", error);
-          return false;
-        }
-      } else {
-        console.warn(
-          "WebSocket not connected. State:",
-          socketRef.current?.readyState,
-        );
+      if (socketRef.current?.readyState === WebSocket.CLOSED) connect();
 
-        if (socketRef.current?.readyState === WebSocket.CLOSED) {
-          console.log("Attempting to reconnect...");
-          connect();
-        }
-
-        return false;
-      }
+      return false;
     },
-    [connect],
+    [connect]
   );
 
   const sendTypingIndicator = useCallback(
@@ -246,52 +276,47 @@ export const WebSocketProvider = ({ children }) => {
         });
       }
     },
-    [sendMessage, myUserId],
+    [sendMessage, myUserId]
   );
 
+
   const sendHeartbeat = useCallback(() => {
-    sendMessage({
-      type: "HEARTBEAT",
-    });
+    sendMessage({ type: "HEARTBEAT" });
   }, [sendMessage]);
 
-  const setCurrentConversation = useCallback((conversationId, receiverId) => {
+
+  const setCurrentConversation = (conversationId, receiverId) => {
     currentConversationRef.current = conversationId;
     currentReceiverRef.current = receiverId;
-  }, []);
+  };
 
-  const getCurrentConversation = useCallback(() => {
-    return {
-      conversationId: currentConversationRef.current,
-      receiverId: currentReceiverRef.current,
-    };
-  }, []);
+  const getCurrentConversation = () => ({
+    conversationId: currentConversationRef.current,
+    receiverId: currentReceiverRef.current,
+  });
+
+
 
   useEffect(() => {
-    if (myUserId && token && !isConnected) {
-      connect();
-    }
-  }, [myUserId, token, isConnected, connect]);
+    if (!isConnected && token && myUserId) connect();
+  }, [token, myUserId, isConnected, connect]);
+
+ 
 
   useEffect(() => {
     if (!isConnected) return;
-
-    const interval = setInterval(() => {
-      sendHeartbeat();
-    }, 30000);
-
+    const interval = setInterval(sendHeartbeat, 30000);
     return () => clearInterval(interval);
   }, [isConnected, sendHeartbeat]);
+
 
   useEffect(() => {
     return () => {
       cleanup();
-      if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
-      }
+      socketRef.current?.close();
     };
   }, [cleanup]);
+
 
   return (
     <WebSocketContext.Provider

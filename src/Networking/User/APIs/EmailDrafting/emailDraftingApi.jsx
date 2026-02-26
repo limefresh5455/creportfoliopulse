@@ -9,7 +9,6 @@ import {
   updateMailTemplate,
 } from "../../../NWconfig";
 import axiosInstance from "../../../Admin/APIs/AxiosInstance";
-import { toast } from "react-toastify";
 
 export const newTenentAPI = createAsyncThunk(
   "newTenentAPI",
